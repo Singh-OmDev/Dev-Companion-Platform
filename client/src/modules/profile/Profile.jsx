@@ -4,7 +4,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { User, MapPin, Link as LinkIcon, Github, Linkedin, Twitter, Globe, Edit2, Save, X, Briefcase, Code, Terminal } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 
 const Profile = () => {
     const { user, fetchDashboardData } = useDashboardStore();
@@ -43,9 +43,7 @@ const Profile = () => {
                 }
             };
 
-            await axios.put('http://localhost:5000/api/profile', updateData, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
+            await api.put('/profile', updateData);
 
             await fetchDashboardData(); // Refresh global store
             setIsEditing(false);

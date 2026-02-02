@@ -21,6 +21,10 @@ router.get('/', auth, async (req, res) => {
 // @desc    Add new learning item
 router.post('/', auth, async (req, res) => {
     try {
+        const { topic } = req.body;
+        if (!topic) {
+            return res.status(400).json({ msg: 'Topic is required' });
+        }
         const newItem = new Learning({
             userId: req.user.id,
             ...req.body
@@ -28,6 +32,9 @@ router.post('/', auth, async (req, res) => {
         const item = await newItem.save();
         res.json(item);
     } catch (err) {
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({ msg: err.message });
+        }
         res.status(500).send('Server Error');
     }
 });

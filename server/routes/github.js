@@ -45,7 +45,7 @@ router.get('/stats/:username', async (req, res) => {
             }
         });
 
-        const languages = Object.entries(languageCounts)
+        const languages = totalSize === 0 ? [] : Object.entries(languageCounts)
             .map(([name, size]) => ({
                 name,
                 value: Math.round((size / totalSize) * 100),

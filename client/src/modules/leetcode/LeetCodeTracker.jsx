@@ -5,8 +5,8 @@ import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { Code, Trophy, Target, Award, ArrowUpRight } from 'lucide-react';
-import axios from 'axios';
+import { Code, Trophy, Target, Award, ArrowUpRight, ArrowRight } from 'lucide-react';
+import api from '../../services/api';
 
 const LeetCodeTracker = () => {
     const { user } = useDashboardStore();
@@ -21,10 +21,11 @@ const LeetCodeTracker = () => {
     }, [user]);
 
     const fetchStats = useCallback(async () => {
+        if (!username) return;
         setLoading(true);
         try {
             // Using our backend proxy which handles CORS and Mocking
-            const res = await axios.get(`http://localhost:5000/api/leetcode/${username}`);
+            const res = await api.get(`/leetcode/${username}`);
             setStats(res.data);
         } catch {
             console.error("Failed to fetch LeetCode stats");

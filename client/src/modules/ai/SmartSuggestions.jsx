@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { Sparkles, ArrowRight, Code, AlertCircle, Coffee } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
 const SmartSuggestions = () => {
@@ -15,7 +16,7 @@ const SmartSuggestions = () => {
         const fetchSuggestions = async () => {
             try {
                 // Mock API call - in prod use auth headers
-                const res = await axios.get('http://localhost:5000/api/ai/suggestions');
+                const res = await api.get('/ai/suggestions');
                 setSuggestions(res.data);
             } catch {
                 console.error("Failed to fetch suggestions");

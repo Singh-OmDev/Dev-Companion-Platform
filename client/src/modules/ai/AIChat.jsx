@@ -3,7 +3,7 @@ import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { Send, Bot, User, Sparkles } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import clsx from 'clsx';
 import useDashboardStore from '../../store/dashboardStore';
 
@@ -38,7 +38,7 @@ const AIChat = () => {
 
             // Using mock endpoint for now (it doesn't actually require token in the mock file for simplicity, 
             // but in production it would)
-            const res = await axios.post('http://localhost:5000/api/ai/chat', { message: userMsg.text });
+            const res = await api.post('/ai/chat', { message: userMsg.text });
 
             const aiMsg = { id: Date.now() + 1, text: res.data.reply, sender: 'ai' };
             setMessages(prev => [...prev, aiMsg]);

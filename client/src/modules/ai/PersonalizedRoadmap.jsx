@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Badge from '../../components/ui/Badge';
 import { Map, Zap, CheckCircle, Lock, Loader, ArrowRight } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import clsx from 'clsx';
 
 const PersonalizedRoadmap = () => {
@@ -17,7 +18,7 @@ const PersonalizedRoadmap = () => {
         setLoading(true);
         try {
             // Mock API call
-            const res = await axios.post('http://localhost:5000/api/ai/roadmap', { goal });
+            const res = await api.post('/ai/roadmap', { goal });
             setRoadmap(res.data.roadmap);
         } catch {
             console.error("Failed to generate roadmap");

@@ -21,6 +21,11 @@ router.get('/', auth, async (req, res) => {
 // @desc    Create new project
 router.post('/', auth, async (req, res) => {
     try {
+        const { title } = req.body;
+        if (!title) {
+            return res.status(400).json({ msg: 'Title is required' });
+        }
+
         const newProject = new Project({
             userId: req.user.id,
             ...req.body
@@ -28,6 +33,9 @@ router.post('/', auth, async (req, res) => {
         const project = await newProject.save();
         res.json(project);
     } catch (err) {
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({ msg: err.message });
+        }
         res.status(500).send('Server Error');
     }
 });

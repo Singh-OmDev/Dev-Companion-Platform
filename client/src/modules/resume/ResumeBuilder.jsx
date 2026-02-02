@@ -4,7 +4,7 @@ import jsPDF from 'jspdf';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { Download, Printer, Edit3, Sparkles } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import useDashboardStore from '../../store/dashboardStore';
 
 const ResumeBuilder = () => {
@@ -76,13 +76,13 @@ const ResumeBuilder = () => {
         try {
             // Enhancing Summary
             // In prod: pass actual text. Here mock endpoint ignores it anyway for specific responses.
-            const resSummary = await axios.post('http://localhost:5000/api/ai/resume-enhance', {
+            const resSummary = await api.post('/ai/resume-enhance', {
                 text: resumeData.summary,
                 type: 'summary'
             });
 
             // Enhancing First Experience Point (Mock demo)
-            const resExp = await axios.post('http://localhost:5000/api/ai/resume-enhance', {
+            const resExp = await api.post('/ai/resume-enhance', {
                 text: resumeData.experience[0].points[0],
                 type: 'experience'
             });

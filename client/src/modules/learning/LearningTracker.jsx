@@ -39,7 +39,7 @@ const TopicCard = ({ topic }) => (
 );
 
 import CreateTopicModal from './CreateTopicModal';
-import axios from 'axios';
+import api from '../../services/api';
 
 // ... (TopicCard stays same, but remove it from here if reused, assume keeping for now)
 
@@ -50,9 +50,7 @@ const LearningTracker = () => {
 
     const fetchTopics = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/learning', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+            const res = await api.get('/learning');
             setTopics(res.data);
         } catch {
             console.error("Failed to fetch learning topics");
@@ -63,9 +61,7 @@ const LearningTracker = () => {
 
     const handleCreateTopic = async (data) => {
         try {
-            const res = await axios.post('http://localhost:5000/api/learning', data, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+            const res = await api.post('/learning', data);
             setTopics([...topics, res.data]);
             setIsModalOpen(false);
         } catch {

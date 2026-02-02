@@ -3,7 +3,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { FolderGit2, Github, ExternalLink, Calendar, Plus, Sparkles, X } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 
 const ReviewModal = ({ isOpen, onClose, reviewData, loading }) => {
     if (!isOpen) return null;
@@ -125,9 +125,7 @@ const ProjectManager = () => {
 
     const fetchProjects = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/projects', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+            const res = await api.get('/projects');
             setProjects(res.data);
         } catch {
             console.error("Failed to fetch projects");
@@ -144,7 +142,7 @@ const ProjectManager = () => {
         setIsModalOpen(true);
         setReviewLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/ai/project-review', { project });
+            const res = await api.post('/ai/project-review', { project });
             setReviewData(res.data);
         } catch (err) {
             console.error(err);
@@ -155,9 +153,7 @@ const ProjectManager = () => {
 
     const handleCreateProject = async (projectData) => {
         try {
-            const res = await axios.post('http://localhost:5000/api/projects', projectData, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+            const res = await api.post('/projects', projectData);
             setProjects([res.data, ...projects]);
             setIsCreateModalOpen(false);
         } catch (err) {

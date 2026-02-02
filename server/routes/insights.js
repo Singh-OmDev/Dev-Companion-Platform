@@ -23,12 +23,17 @@ router.get('/', auth, async (req, res) => {
         // 2. Focus Area (Tech Stack Distribution)
         const techDist = {};
         projects.forEach(p => {
-            p.techStack.forEach(tech => {
-                techDist[tech] = (techDist[tech] || 0) + 1;
-            });
+            if (p.techStack && Array.isArray(p.techStack)) {
+                p.techStack.forEach(tech => {
+                    techDist[tech] = (techDist[tech] || 0) + 1;
+                });
+            }
         });
+
+        const maxVal = Object.values(techDist).length > 0 ? Math.max(...Object.values(techDist)) : 0;
+
         const focusRadarData = Object.entries(techDist)
-            .map(([subject, A]) => ({ subject, A, fullMark: Math.max(...Object.values(techDist)) + 2 }))
+            .map(([subject, A]) => ({ subject, A, fullMark: maxVal + 2 }))
             .sort((a, b) => b.A - a.A)
             .slice(0, 6); // Top 6 technologies
 

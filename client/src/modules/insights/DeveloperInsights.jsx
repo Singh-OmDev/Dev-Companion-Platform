@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import Card from '../../components/ui/Card';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, PieChart, Pie, Cell, RadialBarChart, RadialBar, Legend } from 'recharts';
 import { Activity, Zap, Target, BookOpen } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 
 const DeveloperInsights = () => {
     const [data, setData] = useState(null);
@@ -11,10 +12,7 @@ const DeveloperInsights = () => {
     useEffect(() => {
         const fetchInsights = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/insights', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await api.get('/insights');
                 setData(res.data);
             } catch (err) {
                 console.error(err);
