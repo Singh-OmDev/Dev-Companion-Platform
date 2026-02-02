@@ -1,0 +1,33 @@
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+const passport = require('passport');
+
+// Middlewares
+const auth = passport.authenticate('jwt', { session: false });
+
+// @route   PUT /api/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/', auth, async (req, res) => {
+    const { bio, title, socials, skills } = req.body;
+    const userId = req.user.id; // Passport-JWT attaches user to req
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        if (bio) user.bio = bio;
+        if (title) user.title = title;
+        if (socials) user.socials = { ...user.socials, ...socials };
+        if (skills) user.skills = skills;
+
+        await user.save();
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+module.exports = router;
