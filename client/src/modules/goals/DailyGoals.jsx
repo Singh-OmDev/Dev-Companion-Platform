@@ -138,7 +138,7 @@ const DailyGoals = () => {
                         </div>
                     ))}
 
-                    ))}
+
 
                     {!loading && goals.length === 0 && (
                         <div className="text-center py-20 text-text-muted">
