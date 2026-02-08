@@ -18,9 +18,15 @@ const DailyGoals = () => {
     const fetchGoals = async () => {
         try {
             const res = await api.get('/goals');
-            setGoals(res.data);
+            if (Array.isArray(res.data)) {
+                setGoals(res.data);
+            } else {
+                setGoals([]);
+                console.error("API returned non-array:", res.data);
+            }
         } catch (err) {
-            console.error("Failed to fetch goals");
+            console.error("Failed to fetch goals", err);
+            setGoals([]);
         } finally {
             setLoading(false);
         }
@@ -64,8 +70,9 @@ const DailyGoals = () => {
         }
     };
 
-    const completedCount = goals.filter(g => g.isCompleted || g.completed).length; // Handle both DB field and UI logic if mixed
-    const progress = goals.length === 0 ? 0 : (completedCount / goals.length) * 100;
+    const safeGoals = Array.isArray(goals) ? goals : [];
+    const completedCount = safeGoals.filter(g => g.isCompleted || g.completed).length;
+    const progress = safeGoals.length === 0 ? 0 : (completedCount / safeGoals.length) * 100;
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
@@ -102,7 +109,7 @@ const DailyGoals = () => {
                 <div className="space-y-3">
                     {loading ? (
                         <div className="text-center py-10 animate-pulse">Loading Missions...</div>
-                    ) : goals.map((goal) => (
+                    ) : safeGoals.map((goal) => (
                         <div
                             key={goal._id}
                             className={clsx(
@@ -140,7 +147,7 @@ const DailyGoals = () => {
 
 
 
-                    {!loading && goals.length === 0 && (
+                    {!loading && safeGoals.length === 0 && (
                         <div className="text-center py-20 text-text-muted">
                             <Target className="w-16 h-16 mx-auto mb-4 opacity-20" />
                             <p>No goals set for today.</p>
