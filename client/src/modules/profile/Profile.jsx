@@ -46,6 +46,13 @@ const Profile = () => {
             await api.put('/profile', updateData);
 
             await fetchDashboardData(); // Refresh global store
+
+            // Sync GitHub Stats if username provided
+            if (updateData.socials.github) {
+                await api.post('/github/sync').catch(err => console.error("Sync failed", err));
+                await fetchDashboardData(); // Refetch to get updated stats
+            }
+
             setIsEditing(false);
         } catch (err) {
             console.error(err);

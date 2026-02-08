@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
-const passport = require('passport');
+const auth = require('../middleware/auth');
 
-// Auth middleware
-const auth = passport.authenticate('jwt', { session: false });
+// Auth middleware replaced by Clerk adapter above
+
 
 // @route   GET /api/projects
 // @desc    Get all projects for user

@@ -31,10 +31,12 @@ router.get('/github/callback',
     }
 );
 
-// @route   GET /auth/me
+const auth = require('../middleware/auth');
+
+// @route   GET /api/auth/me
 // @desc    Return current user
 // @access  Private
-router.get('/me', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.get('/me', auth, (req, res) => {
     res.json(req.user);
 });
 

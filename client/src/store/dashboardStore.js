@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import api from '../services/api';
 
 const useDashboardStore = create((set) => ({
     user: {
@@ -32,17 +33,10 @@ const useDashboardStore = create((set) => ({
 
     fetchDashboardData: async () => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-
-            const res = await fetch('http://localhost:5000/auth/me', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (res.ok) {
-                const userData = await res.json();
+            const res = await api.get('/auth/me');
+            if (res.data) {
                 set((state) => ({
-                    user: { ...state.user, ...userData }
+                    user: { ...state.user, ...res.data }
                 }));
             }
         } catch (error) {

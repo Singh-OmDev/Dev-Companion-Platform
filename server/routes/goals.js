@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Goal = require('../models/Goal');
 const User = require('../models/User');
-const passport = require('passport');
+const auth = require('../middleware/auth');
 
-// Auth middleware
-const auth = passport.authenticate('jwt', { session: false });
+// Auth middleware replaced
+
 
 // @route   GET /api/goals
 // @desc    Get goals for TODAY

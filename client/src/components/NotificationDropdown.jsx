@@ -17,7 +17,7 @@ const NotificationDropdown = () => {
                 const res = await api.get('/notifications');
                 setNotifications(res.data.notifications);
                 setUnreadCount(res.data.unreadCount);
-            } catch (err) {
+            } catch {
                 console.error('Failed to fetch notifications');
             }
         };

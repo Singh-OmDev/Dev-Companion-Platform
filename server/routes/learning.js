@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Learning = require('../models/Learning');
-const passport = require('passport');
+const auth = require('../middleware/auth');
 
-// Auth middleware
-const auth = passport.authenticate('jwt', { session: false });
+// Auth middleware replaced
+
 
 // @route   GET /api/learning
 // @desc    Get all learning items for user

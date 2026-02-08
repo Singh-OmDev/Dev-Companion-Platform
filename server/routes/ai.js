@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const auth = require('../middleware/auth');
 
-// Auth middleware
-const auth = passport.authenticate('jwt', { session: false });
+// Auth middleware replaced
+
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'mock_key');

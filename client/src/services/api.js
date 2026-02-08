@@ -7,12 +7,15 @@ const api = axios.create({
     }
 });
 
-// Request Interceptor: Attach Token
+// Request Interceptor: Attach Token from Clerk
 api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
+    async (config) => {
+        // Attempt to get token from global Clerk instance if available
+        if (window.Clerk && window.Clerk.session) {
+            const token = await window.Clerk.session.getToken();
+            if (token) {
+                config.headers['Authorization'] = `Bearer ${token}`;
+            }
         }
         return config;
     },
@@ -26,10 +29,9 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            console.error('Session expired or unauthorized. Clearing token.');
-            localStorage.removeItem('token');
-            // Optional: Redirect to login or trigger a global state update
-            window.location.href = '/login';
+            console.error('Session expired or unauthorized.');
+            // Clerk handles redirection automatically usually, but we can force it if needed
+            // window.location.href = '/login'; 
         }
         return Promise.reject(error);
     }

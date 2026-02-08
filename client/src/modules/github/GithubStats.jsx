@@ -25,7 +25,12 @@ const GithubStats = () => {
     useEffect(() => {
         const fetchGithubData = async () => {
             // Priority: 1. User's linked GitHub (socials), 2. Prompt to connect
-            const githubUsername = dashboardUser?.socials?.github;
+            let githubUsername = dashboardUser?.socials?.github;
+
+            if (githubUsername && githubUsername.includes('github.com')) {
+                const parts = githubUsername.split('/').filter(Boolean);
+                githubUsername = parts[parts.length - 1];
+            }
 
             if (!githubUsername) {
                 setLoading(false);
@@ -101,7 +106,19 @@ const GithubStats = () => {
                     <Button variant="primary" onClick={() => window.open(user?.html_url, '_blank')}>
                         <Github className="w-4 h-4 mr-2" /> View Profile
                     </Button>
-                    <Button variant="secondary" onClick={() => window.location.reload()}>Sync Data</Button>
+                    <Button variant="secondary" onClick={async () => {
+                        try {
+                            setLoading(true);
+                            await fetch('http://localhost:5000/api/github/sync', {
+                                method: 'POST',
+                                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                            });
+                            window.location.reload();
+                        } catch (e) {
+                            console.error(e);
+                            setLoading(false);
+                        }
+                    }}>Sync Data</Button>
                 </div>
             </div>
 
