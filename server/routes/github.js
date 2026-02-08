@@ -157,6 +157,7 @@ router.post('/sync', auth, async (req, res) => {
             const parts = username.split('/').filter(Boolean);
             username = parts[parts.length - 1];
         }
+        username = username.trim(); // Ensure no trailing spaces
         const options = { headers: { 'User-Agent': 'Dev-Companion-App' } };
 
         if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
@@ -231,7 +232,10 @@ router.post('/sync', auth, async (req, res) => {
 
     } catch (err) {
         console.error('Github Sync Error:', err.message);
-        res.status(500).send('Server Error');
+        if (err.response && err.response.status === 404) {
+            return res.status(404).json({ msg: 'GitHub user not found. Please check your username.' });
+        }
+        res.status(500).send('Server Error: ' + err.message);
     }
 });
 

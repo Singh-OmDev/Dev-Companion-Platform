@@ -6,37 +6,66 @@ import Input from '../../components/ui/Input';
 import { Target, CheckCircle, Circle, Flame, Plus, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 
+import api from '../../services/api';
+
 const DailyGoals = () => {
-    // Basic Mock State (would connect to API in full version)
-    const [goals, setGoals] = useState([
-        { id: 1, title: 'Solve 1 LeetCode Hard', completed: false, type: 'leetcode' },
-        { id: 2, title: 'Read 2 Systems Design Papers', completed: true, type: 'learning' },
-        { id: 3, title: 'Push Project Update', completed: false, type: 'project' }
-    ]);
+    const [goals, setGoals] = useState([]);
     const [newGoal, setNewGoal] = useState('');
+    const [loading, setLoading] = useState(true);
+    // Streak logic would ideally come from backend too, keeping simple for now or fetch from user stats
     const [streak] = useState(12);
 
-    const toggleGoal = (id) => {
-        setGoals(goals.map(g => g.id === id ? { ...g, completed: !g.completed } : g));
+    const fetchGoals = async () => {
+        try {
+            const res = await api.get('/goals');
+            setGoals(res.data);
+        } catch (err) {
+            console.error("Failed to fetch goals");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const addGoal = () => {
+    useEffect(() => {
+        fetchGoals();
+    }, []);
+
+    const toggleGoal = async (id) => {
+        try {
+            // Optimistic update
+            setGoals(goals.map(g => g._id === id ? { ...g, completed: !g.completed } : g)); // Note: _id from mongo
+            await api.put(`/goals/${id}/toggle`);
+            // Optionally refetch to ensure sync
+        } catch (err) {
+            console.error("Failed to toggle goal");
+            fetchGoals(); // Revert on error
+        }
+    };
+
+    const addGoal = async () => {
         if (!newGoal.trim()) return;
-        setGoals([...goals, {
-            id: Date.now(),
-            title: newGoal,
-            completed: false,
-            type: 'other'
-        }]);
-        setNewGoal('');
+        try {
+            const res = await api.post('/goals', { title: newGoal, type: 'other' });
+            setGoals([...goals, res.data]);
+            setNewGoal('');
+        } catch (err) {
+            console.error("Failed to add goal");
+        }
     };
 
-    const deleteGoal = (id) => {
-        setGoals(goals.filter(g => g.id !== id));
+    const deleteGoal = async (id) => {
+        try {
+            // Optimistic
+            setGoals(goals.filter(g => g._id !== id));
+            await api.delete(`/goals/${id}`);
+        } catch (err) {
+            console.error("Failed to delete goal");
+            fetchGoals();
+        }
     };
 
-    const completedCount = goals.filter(g => g.completed).length;
-    const progress = (completedCount / goals.length) * 100;
+    const completedCount = goals.filter(g => g.isCompleted || g.completed).length; // Handle both DB field and UI logic if mixed
+    const progress = goals.length === 0 ? 0 : (completedCount / goals.length) * 100;
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
@@ -71,26 +100,28 @@ const DailyGoals = () => {
                 </div>
 
                 <div className="space-y-3">
-                    {goals.map((goal) => (
+                    {loading ? (
+                        <div className="text-center py-10 animate-pulse">Loading Missions...</div>
+                    ) : goals.map((goal) => (
                         <div
-                            key={goal.id}
+                            key={goal._id}
                             className={clsx(
                                 "flex items-center justify-between p-4 rounded-xl border transition-all duration-300 group",
-                                goal.completed
+                                goal.isCompleted || goal.completed
                                     ? "bg-surfaceHighlight/30 border-primary/20 opacity-60"
                                     : "bg-surface border-surfaceHighlight hover:border-border"
                             )}
                         >
-                            <div className="flex items-center gap-4 cursor-pointer" onClick={() => toggleGoal(goal.id)}>
+                            <div className="flex items-center gap-4 cursor-pointer" onClick={() => toggleGoal(goal._id)}>
                                 <div className={clsx(
                                     "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors",
                                     goal.completed
                                         ? "bg-primary border-primary text-black"
                                         : "border-text-muted group-hover:border-primary"
                                 )}>
-                                    {goal.completed && <CheckCircle className="w-4 h-4" />}
+                                    {(goal.isCompleted || goal.completed) && <CheckCircle className="w-4 h-4" />}
                                 </div>
-                                <div className={clsx("font-medium text-lg", goal.completed && "line-through text-text-muted")}>
+                                <div className={clsx("font-medium text-lg", (goal.isCompleted || goal.completed) && "line-through text-text-muted")}>
                                     {goal.title}
                                 </div>
                             </div>
@@ -98,7 +129,7 @@ const DailyGoals = () => {
                             <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Badge variant="default" className="capitalize">{goal.type}</Badge>
                                 <button
-                                    onClick={() => deleteGoal(goal.id)}
+                                    onClick={() => deleteGoal(goal._id)}
                                     className="text-text-muted hover:text-red-500 transition-colors"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -107,7 +138,9 @@ const DailyGoals = () => {
                         </div>
                     ))}
 
-                    {goals.length === 0 && (
+                    ))}
+
+                    {!loading && goals.length === 0 && (
                         <div className="text-center py-20 text-text-muted">
                             <Target className="w-16 h-16 mx-auto mb-4 opacity-20" />
                             <p>No goals set for today.</p>

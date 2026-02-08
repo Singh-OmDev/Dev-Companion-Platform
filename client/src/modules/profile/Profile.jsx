@@ -3,13 +3,34 @@ import useDashboardStore from '../../store/dashboardStore';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
-import { User, MapPin, Link as LinkIcon, Github, Linkedin, Twitter, Globe, Edit2, Save, X, Briefcase, Code, Terminal } from 'lucide-react';
+import { User, MapPin, Link as LinkIcon, Github, Linkedin, Twitter, Globe, Edit2, Save, X, Briefcase, Code, Terminal, RefreshCw } from 'lucide-react';
 import api from '../../services/api';
 
 const Profile = () => {
     const { user, fetchDashboardData } = useDashboardStore();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [syncing, setSyncing] = useState(false);
+
+    const handleSync = async () => {
+        if (!user?.socials?.github) return;
+        setSyncing(true);
+        try {
+            await api.post('/github/sync');
+            await fetchDashboardData();
+        } catch (error) {
+            console.error("Sync failed:", error);
+        } finally {
+            setSyncing(false);
+        }
+    };
+
+    // Auto-sync if github connected but no stats
+    React.useEffect(() => {
+        if (user?.socials?.github && (!user?.stats?.totalRepos || user?.stats?.totalRepos === 0)) {
+            handleSync();
+        }
+    }, []); // Run once on mount if condition met
 
     // Form State
     const [formData, setFormData] = useState({
@@ -36,10 +57,10 @@ const Profile = () => {
                 title: formData.title,
                 skills: skillsArray,
                 socials: {
-                    github: formData.github,
-                    linkedin: formData.linkedin,
-                    twitter: formData.twitter,
-                    website: formData.website
+                    github: formData.github.trim(),
+                    linkedin: formData.linkedin.trim(),
+                    twitter: formData.twitter.trim(),
+                    website: formData.website.trim()
                 }
             };
 
@@ -54,8 +75,12 @@ const Profile = () => {
             }
 
             setIsEditing(false);
+            // Simple feedback for now - specialized toast component would be better but this works
+            // alert("Profile Updated & GitHub Synced!"); 
+            // Better: just let the UI update speak for itself, or use a small temp state for "Saved!"
         } catch (err) {
             console.error(err);
+            alert("Failed to save profile.");
         } finally {
             setLoading(false);
         }
@@ -110,6 +135,15 @@ const Profile = () => {
                         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                             <Briefcase className="w-5 h-5 text-primary" />
                             Career Stats
+                            {user?.socials?.github && (
+                                <button
+                                    onClick={handleSync}
+                                    className={`ml-auto p-1 rounded-full hover:bg-surfaceHighlight transition-all ${syncing ? 'animate-spin' : ''}`}
+                                    title="Sync GitHub Stats"
+                                >
+                                    <RefreshCw className="w-4 h-4 text-text-muted hover:text-primary" />
+                                </button>
+                            )}
                         </h3>
                         <div className="space-y-4">
                             <div className="flex justify-between items-center p-3 bg-surfaceHighlight/50 rounded-lg">

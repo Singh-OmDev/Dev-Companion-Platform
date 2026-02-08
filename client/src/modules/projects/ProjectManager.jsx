@@ -4,6 +4,7 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { FolderGit2, Github, ExternalLink, Calendar, Plus, Sparkles, X } from 'lucide-react';
 import api from '../../services/api';
+import CreateProjectModal from './CreateProjectModal';
 
 const ReviewModal = ({ isOpen, onClose, reviewData, loading }) => {
     if (!isOpen) return null;

@@ -4,6 +4,7 @@ import { LayoutDashboard, Github, BookOpen, FolderKanban, Code2, Target, FileTex
 import clsx from 'clsx';
 import NotificationDropdown from './NotificationDropdown';
 import useThemeStore from '../store/themeStore';
+import useDashboardStore from '../store/dashboardStore';
 
 // eslint-disable-next-line no-unused-vars
 const SidebarItem = ({ to, icon: Icon, label }) => (
@@ -25,11 +26,17 @@ const SidebarItem = ({ to, icon: Icon, label }) => (
 
 const Layout = ({ children }) => {
     const { theme, toggleTheme } = useThemeStore();
+    const { fetchDashboardData, user } = useDashboardStore();
 
     // Init theme
     useEffect(() => {
         document.documentElement.className = theme;
     }, [theme]);
+
+    // Fetch User Data on Mount
+    useEffect(() => {
+        fetchDashboardData();
+    }, []);
 
     return (
         <div className="flex h-screen bg-background text-text overflow-hidden font-sans transition-colors duration-300">
@@ -70,7 +77,7 @@ const Layout = ({ children }) => {
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-surfaceHighlight border border-border" />
                         <div className="flex flex-col">
-                            <span className="text-sm font-bold">User</span>
+                            <span className="text-sm font-bold">{user?.name || "User"}</span>
                             <span className="text-xs text-text-muted">Pro Plan</span>
                         </div>
                         <div className="ml-auto">
