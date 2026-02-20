@@ -3,6 +3,8 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { BookOpen, Video, FileText, Plus, MoreHorizontal } from 'lucide-react';
+import CreateTopicModal from './CreateTopicModal';
+import api from '../../services/api';
 
 const TopicCard = ({ topic }) => (
     <Card className="hover:border-primary/50 transition-all group relative overflow-hidden">
@@ -37,9 +39,6 @@ const TopicCard = ({ topic }) => (
         </div>
     </Card>
 );
-
-import CreateTopicModal from './CreateTopicModal';
-import api from '../../services/api';
 
 // ... (TopicCard stays same, but remove it from here if reused, assume keeping for now)
 

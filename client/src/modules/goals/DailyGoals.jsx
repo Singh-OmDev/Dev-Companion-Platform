@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
@@ -24,8 +24,8 @@ const DailyGoals = () => {
                 setGoals([]);
                 console.error("API returned non-array:", res.data);
             }
-        } catch (err) {
-            console.error("Failed to fetch goals", err);
+        } catch {
+            console.error("Failed to fetch goals");
             setGoals([]);
         } finally {
             setLoading(false);
@@ -42,7 +42,7 @@ const DailyGoals = () => {
             setGoals(goals.map(g => g._id === id ? { ...g, completed: !g.completed } : g)); // Note: _id from mongo
             await api.put(`/goals/${id}/toggle`);
             // Optionally refetch to ensure sync
-        } catch (err) {
+        } catch {
             console.error("Failed to toggle goal");
             fetchGoals(); // Revert on error
         }
@@ -54,7 +54,7 @@ const DailyGoals = () => {
             const res = await api.post('/goals', { title: newGoal, type: 'other' });
             setGoals([...goals, res.data]);
             setNewGoal('');
-        } catch (err) {
+        } catch {
             console.error("Failed to add goal");
         }
     };
@@ -64,7 +64,7 @@ const DailyGoals = () => {
             // Optimistic
             setGoals(goals.filter(g => g._id !== id));
             await api.delete(`/goals/${id}`);
-        } catch (err) {
+        } catch {
             console.error("Failed to delete goal");
             fetchGoals();
         }

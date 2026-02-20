@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import useDashboardStore from '../../store/dashboardStore';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -12,7 +12,11 @@ const Profile = () => {
     const [loading, setLoading] = useState(false);
     const [syncing, setSyncing] = useState(false);
 
-    const handleSync = async () => {
+    const handleSync = useCallback(async () => {
+        // user check inside callback to avoid dependency on specific user properties if possible, 
+        // but here we need user.socials.github.
+        // If we include 'user' in dependency, it might change too often.
+        // let's rely on user object stability or just properties needed.
         if (!user?.socials?.github) return;
         setSyncing(true);
         try {
@@ -23,14 +27,14 @@ const Profile = () => {
         } finally {
             setSyncing(false);
         }
-    };
+    }, [user?.socials?.github, fetchDashboardData]);
 
     // Auto-sync if github connected but no stats
-    React.useEffect(() => {
+    useEffect(() => {
         if (user?.socials?.github && (!user?.stats?.totalRepos || user?.stats?.totalRepos === 0)) {
             handleSync();
         }
-    }, []); // Run once on mount if condition met
+    }, [handleSync, user?.socials?.github, user?.stats?.totalRepos]); // Run once on mount if condition met
 
     // Form State
     const [formData, setFormData] = useState({
@@ -244,7 +248,6 @@ const Profile = () => {
 };
 
 // Helper Components
-// eslint-disable-next-line no-unused-vars
 const SocialInput = ({ icon: Icon, name, value, onChange, placeholder }) => (
     <div className="flex items-center gap-2 bg-surfaceHighlight p-2 rounded border border-border focus-within:border-primary transition-colors">
         <Icon className="w-4 h-4 text-text-muted" />
@@ -259,7 +262,6 @@ const SocialInput = ({ icon: Icon, name, value, onChange, placeholder }) => (
     </div>
 );
 
-// eslint-disable-next-line no-unused-vars
 const SocialLink = ({ icon: Icon, label, href }) => {
     if (!href) return null;
     return (

@@ -6,7 +6,6 @@ import Button from '../../components/ui/Button';
 import { Activity, Code, GitCommit, Trophy, ArrowRight, Zap } from 'lucide-react';
 import SmartSuggestions from '../ai/SmartSuggestions';
 
-// eslint-disable-next-line no-unused-vars
 const StatCard = ({ label, value, icon: Icon, trend }) => (
     <Card className="flex items-center justify-between p-6 hover:border-primary/50 transition-colors group">
         <div>

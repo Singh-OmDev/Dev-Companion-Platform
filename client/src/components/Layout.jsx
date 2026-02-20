@@ -6,7 +6,6 @@ import NotificationDropdown from './NotificationDropdown';
 import useThemeStore from '../store/themeStore';
 import useDashboardStore from '../store/dashboardStore';
 
-// eslint-disable-next-line no-unused-vars
 const SidebarItem = ({ to, icon: Icon, label }) => (
     <NavLink
         to={to}
@@ -36,7 +35,7 @@ const Layout = ({ children }) => {
     // Fetch User Data on Mount
     useEffect(() => {
         fetchDashboardData();
-    }, []);
+    }, [fetchDashboardData]);
 
     return (
         <div className="flex h-screen bg-background text-text overflow-hidden font-sans transition-colors duration-300">
