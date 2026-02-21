@@ -5,6 +5,7 @@ import { Github, GitCommit, Star, GitBranch, MapPin, Link as LinkIcon, Code } fr
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
+import api from '../../services/api';
 
 const GithubStats = () => {
 
@@ -118,17 +119,14 @@ const GithubStats = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-3 min-w-[150px]">
+                <div className="flex flex-col gap-3 min-w-[150px] relative z-10">
                     <Button variant="primary" onClick={() => window.open(user?.html_url, '_blank')}>
                         <Github className="w-4 h-4 mr-2" /> View Profile
                     </Button>
                     <Button variant="secondary" onClick={async () => {
                         try {
                             setLoading(true);
-                            await fetch('http://localhost:5000/api/github/sync', {
-                                method: 'POST',
-                                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                            });
+                            await api.post('/github/sync');
                             window.location.reload();
                         } catch (e) {
                             console.error(e);

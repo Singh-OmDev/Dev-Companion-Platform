@@ -14,6 +14,17 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+// Global Request Logger
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const ms = Date.now() - start;
+        console.log(`${req.method} ${req.originalUrl} ${res.statusCode} - ${ms}ms`);
+    });
+    next();
+});
+
 // app.use(passport.initialize());
 
 // Database Connection
