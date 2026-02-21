@@ -17,13 +17,17 @@ const authAdapter = (req, res, next) => {
 
                 if (!user) {
                     console.log(`Clerk User ${clerkId} not found in DB. Creating...`);
-                    // Create new user
-                    user = new User({
+                    const newUserPayload = {
                         clerkId,
                         username: `user_${clerkId.slice(-6)}`,
-                        email: req.auth.claims?.email || '', // simplified
                         name: 'New Developer'
-                    });
+                    };
+
+                    if (req.auth.claims && req.auth.claims.email) {
+                        newUserPayload.email = req.auth.claims.email;
+                    }
+
+                    user = new User(newUserPayload);
                     await user.save();
                 }
 

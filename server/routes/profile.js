@@ -34,10 +34,10 @@ router.put('/', auth, async (req, res) => {
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ msg: 'User not found' });
 
-        if (bio) user.bio = bio;
-        if (title) user.title = title;
-        if (socials) user.socials = { ...user.socials, ...socials };
-        if (skills) user.skills = skills;
+        if (bio !== undefined) user.bio = bio;
+        if (title !== undefined) user.title = title;
+        if (socials !== undefined) user.socials = { ...(user.socials || {}), ...socials };
+        if (skills !== undefined) user.skills = skills;
 
         await user.save();
         res.json(user);
