@@ -59,4 +59,65 @@ router.get('/:username', async (req, res) => {
     }
 });
 
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'mock_key');
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+// @desc    Get AI personalized recommendations for LeetCode
+router.get('/:username/recommendations', async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        // Fetch recent submissions to give context to the AI
+        let recentTitles = [];
+        try {
+            const response = await axios.get(`https://leetcode-api-faisalshohag.vercel.app/${username}`);
+            if (response.data && response.data.recentSubmissions) {
+                recentTitles = response.data.recentSubmissions.slice(0, 5).map(s => s.title);
+            }
+        } catch (e) {
+            console.log("Failed to fetch recent submissions for AI context");
+        }
+
+        const prompt = `You are an expert algorithms mentor. The user has recently solved or attempted these LeetCode problems: ${recentTitles.length > 0 ? recentTitles.join(', ') : 'Various beginner problems'}.
+        Based on these recent topics, suggest EXACTLY 2 new LeetCode problems that would be good practice for them next.
+        Return ONLY a raw JSON array (no markdown, no backticks) where each object has these exact fields:
+        "title" (string, the problem name),
+        "difficulty" (string, exactly "E", "M", or "H"),
+        "topics" (string, e.g., "Array • DP"),
+        "link" (string, the full LeetCode URL).
+        Example: [{"title": "Maximum Subarray", "difficulty": "E", "topics": "Array • DP", "link": "https://leetcode.com/problems/maximum-subarray/"}]`;
+
+        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('YOUR_API_KEY')) {
+            // Return mock functional data if no key
+            return res.json([
+                { title: "Two Sum", difficulty: "E", topics: "Array • Hash Table", link: "https://leetcode.com/problems/two-sum/" },
+                { title: "Longest Substring Without Repeating Characters", difficulty: "M", topics: "Hash Table • String", link: "https://leetcode.com/problems/longest-substring-without-repeating-characters/" }
+            ]);
+        }
+
+        const result = await model.generateContent(prompt);
+        let text = await result.response.text();
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        let suggestions;
+        try {
+            suggestions = JSON.parse(text);
+        } catch (e) {
+            console.error("Failed to parse Gemini response:", text);
+            suggestions = [
+                { title: "Container With Most Water", difficulty: "M", topics: "Array • Two Pointers", link: "https://leetcode.com/problems/container-with-most-water/" },
+                { title: "Valid Parentheses", difficulty: "E", topics: "String • Stack", link: "https://leetcode.com/problems/valid-parentheses/" }
+            ];
+        }
+
+        res.json(suggestions);
+    } catch (err) {
+        console.error("AI Recommendation Error:", err.message);
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
 module.exports = router;

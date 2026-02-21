@@ -141,7 +141,10 @@ const LeetCodeTracker = () => {
                             </div>
 
                             <div className="space-y-3">
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-surfaceHighlight hover:bg-white/5 transition-colors cursor-pointer group">
+                                <div
+                                    className="flex items-center justify-between p-3 rounded-lg bg-surfaceHighlight hover:bg-white/5 transition-colors cursor-pointer group"
+                                    onClick={() => window.open('https://leetcode.com/problems/course-schedule-ii/', '_blank')}
+                                >
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded bg-[#FFC01E]/20 text-[#FFC01E] flex items-center justify-center font-bold text-xs">M</div>
                                         <div>
@@ -152,7 +155,10 @@ const LeetCodeTracker = () => {
                                     <ArrowRight className="w-4 h-4 text-text-muted group-hover:text-white transition-colors" />
                                 </div>
 
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-surfaceHighlight hover:bg-white/5 transition-colors cursor-pointer group">
+                                <div
+                                    className="flex items-center justify-between p-3 rounded-lg bg-surfaceHighlight hover:bg-white/5 transition-colors cursor-pointer group"
+                                    onClick={() => window.open('https://leetcode.com/problems/maximum-subarray/', '_blank')}
+                                >
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded bg-[#00B8A3]/20 text-[#00B8A3] flex items-center justify-center font-bold text-xs">E</div>
                                         <div>
