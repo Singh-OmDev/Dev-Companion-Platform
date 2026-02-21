@@ -10,12 +10,33 @@ router.get('/:username', async (req, res) => {
         // Try fetching from public API
         // Using a known LeetCode stats proxy. If it fails, fallback to mock.
         try {
-            const response = await axios.get(`https://leetcode-stats-api.herokuapp.com/${username}`);
-            if (response.data.status === 'success') {
-                return res.json(response.data);
+            const response = await axios.get(`https://leetcode-api-faisalshohag.vercel.app/${username}`);
+            if (response.data && response.data.totalSolved !== undefined) {
+                const data = response.data;
+
+                // Calculate an approximate acceptance rate
+                let accRate = 0;
+                if (data.totalSubmissions && data.totalSubmissions.length > 0) {
+                    const totalSubsNum = data.totalSubmissions[0].submissions;
+                    if (totalSubsNum > 0) {
+                        accRate = ((data.totalSolved / totalSubsNum) * 100).toFixed(1);
+                    }
+                }
+
+                return res.json({
+                    status: "success",
+                    totalSolved: data.totalSolved,
+                    easySolved: data.easySolved,
+                    mediumSolved: data.mediumSolved,
+                    hardSolved: data.hardSolved,
+                    acceptanceRate: parseFloat(accRate) || 0,
+                    ranking: data.ranking,
+                    contributionPoints: data.contributionPoint || 0,
+                    reputation: data.reputation || 0
+                });
             }
         } catch (e) {
-            console.log("LeetCode Proxy failed, switching to mock data");
+            console.log("LeetCode Proxy failed, switching to mock data", e.message);
         }
 
         // Fallback Mock Data
