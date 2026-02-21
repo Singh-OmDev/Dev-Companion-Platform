@@ -79,10 +79,29 @@ router.post('/roadmap', auth, async (req, res) => {
 // @desc    Get proactive AI suggestions
 router.get('/suggestions', auth, async (req, res) => {
     try {
-        // In a real app, you would pass user context here
-        const prompt = `Generate 3 proactive suggestions for a developer in JSON format. 
-        Types: "leetcode", "project", "health". 
-        Return ONLY a raw JSON array (no markdown) with: id, type, message, action, link (optional).`;
+        const user = req.user;
+
+        let contextData = "New User";
+        if (user && user.stats) {
+            contextData = `User Stats: 
+            - Github Commits: ${user.stats.totalCommits || 0}
+            - Current Streak: ${user.stats.currentStreak || 0} days
+            - LeetCode Solved: ${user.stats.leetcodeSolved?.total || 0} total (Easy: ${user.stats.leetcodeSolved?.easy || 0}, Medium: ${user.stats.leetcodeSolved?.medium || 0}, Hard: ${user.stats.leetcodeSolved?.hard || 0})
+            - Preferred Theme: ${user.preferences?.theme || 'default'}
+            `;
+        }
+
+        const prompt = `You are a personalized developer AI assistant. Here is the current user's profile context:
+        ${contextData}
+        
+        Generate exactly 3 proactive, highly personalized suggestions for this developer in JSON format based on their specific stats.
+        Types must be EXACTLY one of: "leetcode", "project", "health". 
+        Return ONLY a raw JSON array (no markdown, no backticks) where each object has these exact fields:
+        "id" (number 1-3),
+        "type" (string), 
+        "message" (string, the core insight/encouragement), 
+        "action" (string, next step to take), 
+        "link" (optional string, e.g., "/leetcode" or "/projects").`;
 
         let text = await generateContent(prompt);
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -91,7 +110,12 @@ router.get('/suggestions', auth, async (req, res) => {
         try {
             suggestions = JSON.parse(text);
         } catch (e) {
-            suggestions = [];
+            console.error("Failed to parse AI Insights:", text);
+            suggestions = [
+                { id: 1, type: "leetcode", message: "Keep up the coding momentum!", action: "Try a new medium problem today.", link: "/leetcode" },
+                { id: 2, type: "project", message: "Your GitHub activity is looking solid.", action: "Consider starting a new side project.", link: "/projects" },
+                { id: 3, type: "health", message: "Don't forget to take breaks.", action: "Step away from the screen for 10 minutes." }
+            ];
         }
 
         res.json(suggestions);
@@ -146,6 +170,39 @@ router.post('/project-review', auth, async (req, res) => {
         }
 
         res.json(data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET /api/ai/generate-goal
+// @desc    Generate a personalized daily goal
+router.get('/generate-goal', auth, async (req, res) => {
+    try {
+        const user = req.user;
+        let contextData = "New User";
+        if (user && user.stats) {
+            contextData = `Github Commits: ${user.stats.totalCommits || 0}, LeetCode Solved: ${user.stats.leetcodeSolved?.total || 0}, Current Streak: ${user.stats.currentStreak || 0} days`;
+        }
+
+        const prompt = `You are an AI developer coach. The user's current stats are: ${contextData}.
+        Suggest exactly ONE highly specific, actionable, and realistic daily coding goal for them to accomplish today.
+        Return ONLY a raw JSON object (no markdown, no backticks) with:
+        "title" (string, short actionable mission, max 50 chars),
+        "type" (string, exactly one of: "leetcode", "github", "learning", "other").`;
+
+        let text = await generateContent(prompt);
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        let goalObj;
+        try {
+            goalObj = JSON.parse(text);
+        } catch (e) {
+            goalObj = { title: "Solve one LeetCode Medium problem", type: "leetcode" };
+        }
+
+        res.json(goalObj);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
