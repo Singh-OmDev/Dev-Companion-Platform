@@ -13,6 +13,8 @@ const LeetCodeTracker = () => {
     const [username, setUsername] = useState(user?.socials?.leetcode || '');
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [suggestions, setSuggestions] = useState([]);
+    const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
     useEffect(() => {
         if (user?.socials?.leetcode) {
@@ -23,12 +25,24 @@ const LeetCodeTracker = () => {
     const fetchStats = useCallback(async () => {
         if (!username) return;
         setLoading(true);
+        setLoadingSuggestions(true);
         try {
-            // Using our backend proxy which handles CORS and Mocking
+            // Fetch stats
             const res = await api.get(`/leetcode/${username}`);
             setStats(res.data);
+
+            // Fetch AI Recommendations in background
+            api.get(`/leetcode/${username}/recommendations`).then(sugRes => {
+                setSuggestions(sugRes.data);
+                setLoadingSuggestions(false);
+            }).catch(e => {
+                console.error("Failed to fetch LeetCode recommendations:", e);
+                setLoadingSuggestions(false);
+            });
+
         } catch {
             console.error("Failed to fetch LeetCode stats");
+            setLoadingSuggestions(false);
         } finally {
             setLoading(false);
         }
@@ -141,33 +155,43 @@ const LeetCodeTracker = () => {
                             </div>
 
                             <div className="space-y-3">
-                                <div
-                                    className="flex items-center justify-between p-3 rounded-lg bg-surfaceHighlight hover:bg-white/5 transition-colors cursor-pointer group"
-                                    onClick={() => window.open('https://leetcode.com/problems/course-schedule-ii/', '_blank')}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded bg-[#FFC01E]/20 text-[#FFC01E] flex items-center justify-center font-bold text-xs">M</div>
-                                        <div>
-                                            <div className="font-medium group-hover:text-[#FFC01E] transition-colors">Course Schedule II</div>
-                                            <div className="text-xs text-text-muted">Graph • Cyclic Detection</div>
-                                        </div>
+                                {loadingSuggestions ? (
+                                    <div className="flex flex-col items-center justify-center py-8 text-text-muted space-y-3 animate-fade-in">
+                                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                        <p className="text-sm">AI is researching your recent submissions...</p>
                                     </div>
-                                    <ArrowRight className="w-4 h-4 text-text-muted group-hover:text-white transition-colors" />
-                                </div>
-
-                                <div
-                                    className="flex items-center justify-between p-3 rounded-lg bg-surfaceHighlight hover:bg-white/5 transition-colors cursor-pointer group"
-                                    onClick={() => window.open('https://leetcode.com/problems/maximum-subarray/', '_blank')}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded bg-[#00B8A3]/20 text-[#00B8A3] flex items-center justify-center font-bold text-xs">E</div>
-                                        <div>
-                                            <div className="font-medium group-hover:text-[#00B8A3] transition-colors">Maximum Subarray</div>
-                                            <div className="text-xs text-text-muted">Array • DP</div>
+                                ) : suggestions && suggestions.length > 0 ? (
+                                    suggestions.map((sug, i) => (
+                                        <div
+                                            key={i}
+                                            className="flex items-center justify-between p-3 rounded-lg bg-surfaceHighlight hover:bg-white/5 transition-colors cursor-pointer group"
+                                            onClick={() => window.open(sug.link, '_blank')}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-8 h-8 rounded flex items-center justify-center font-bold text-xs ${sug.difficulty === 'E' ? 'bg-[#00B8A3]/20 text-[#00B8A3]' :
+                                                        sug.difficulty === 'M' ? 'bg-[#FFC01E]/20 text-[#FFC01E]' :
+                                                            'bg-[#FF375F]/20 text-[#FF375F]'
+                                                    }`}>
+                                                    {sug.difficulty}
+                                                </div>
+                                                <div>
+                                                    <div className={`font-medium transition-colors ${sug.difficulty === 'E' ? 'group-hover:text-[#00B8A3]' :
+                                                            sug.difficulty === 'M' ? 'group-hover:text-[#FFC01E]' :
+                                                                'group-hover:text-[#FF375F]'
+                                                        }`}>
+                                                        {sug.title}
+                                                    </div>
+                                                    <div className="text-xs text-text-muted">{sug.topics}</div>
+                                                </div>
+                                            </div>
+                                            <ArrowRight className="w-4 h-4 text-text-muted group-hover:text-white transition-colors" />
                                         </div>
+                                    ))
+                                ) : (
+                                    <div className="p-4 text-center text-text-muted text-sm">
+                                        No recommendations available. Try solving more problems!
                                     </div>
-                                    <ArrowRight className="w-4 h-4 text-text-muted group-hover:text-white transition-colors" />
-                                </div>
+                                )}
                             </div>
                         </Card>
                     </div>

@@ -63,7 +63,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'mock_key');
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // @desc    Get AI personalized recommendations for LeetCode
 router.get('/:username/recommendations', async (req, res) => {
@@ -90,27 +90,23 @@ router.get('/:username/recommendations', async (req, res) => {
         "link" (string, the full LeetCode URL).
         Example: [{"title": "Maximum Subarray", "difficulty": "E", "topics": "Array • DP", "link": "https://leetcode.com/problems/maximum-subarray/"}]`;
 
+        const fallbackSuggestions = [
+            { title: "Two Sum", difficulty: "E", topics: "Array • Hash Table", link: "https://leetcode.com/problems/two-sum/" },
+            { title: "Longest Substring Without Repeating Characters", difficulty: "M", topics: "Hash Table • String", link: "https://leetcode.com/problems/longest-substring-without-repeating-characters/" }
+        ];
+
         if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('YOUR_API_KEY')) {
-            // Return mock functional data if no key
-            return res.json([
-                { title: "Two Sum", difficulty: "E", topics: "Array • Hash Table", link: "https://leetcode.com/problems/two-sum/" },
-                { title: "Longest Substring Without Repeating Characters", difficulty: "M", topics: "Hash Table • String", link: "https://leetcode.com/problems/longest-substring-without-repeating-characters/" }
-            ]);
+            return res.json(fallbackSuggestions);
         }
 
-        const result = await model.generateContent(prompt);
-        let text = await result.response.text();
-        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        let suggestions;
+        let suggestions = fallbackSuggestions;
         try {
+            const result = await model.generateContent(prompt);
+            let text = result.response.text();
+            text = text.replace(/```json/g, '').replace(/```/g, '').trim();
             suggestions = JSON.parse(text);
         } catch (e) {
-            console.error("Failed to parse Gemini response:", text);
-            suggestions = [
-                { title: "Container With Most Water", difficulty: "M", topics: "Array • Two Pointers", link: "https://leetcode.com/problems/container-with-most-water/" },
-                { title: "Valid Parentheses", difficulty: "E", topics: "String • Stack", link: "https://leetcode.com/problems/valid-parentheses/" }
-            ];
+            console.error("Gemini failed/invalid key, using fallback:", e.message);
         }
 
         res.json(suggestions);
