@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useDashboardStore from '../../store/dashboardStore';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
@@ -21,6 +22,7 @@ const StatCard = ({ label, value, icon: Icon, trend }) => (
 
 const Dashboard = () => {
     const { user, stats, goals, activity, fetchDashboardData } = useDashboardStore();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchDashboardData();
@@ -37,8 +39,8 @@ const Dashboard = () => {
                     <p className="text-text-muted mt-2 text-lg">You're on a <span className="text-primary font-bold">{user.streak} day streak</span>! Keep it up. 🚀</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost">Customize</Button>
-                    <Button>Daily Check-in</Button>
+                    <Button variant="ghost" onClick={() => navigate('/profile')}>Customize</Button>
+                    <Button onClick={() => navigate('/goals')}>Daily Check-in</Button>
                 </div>
             </div>
 
