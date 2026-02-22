@@ -166,38 +166,40 @@ router.post('/parse-pdf', auth, upload.single('resume'), async (req, res) => {
         }
 
         // 2. Instruct AI to structure the text into exact JSON schema needed by frontend
-        const prompt = `You are a specialist parsing an uploaded resume PDF into strict JSON.
-        Extract the candidate's details from this raw PDF text:
+        const prompt = `You are a specialist parser. Your ONLY job is to extract the candidate's details from this raw PDF text into a strict JSON object. 
+        DO NOT provide any conversational text, feedback, or evaluation of the resume. DO NOT say "Here is the summary" or "Here are some suggestions".
+        
+        Extract the details from this raw PDF text:
 
-        ${rawText.substring(0, 10000)} // truncate to avoid token limits if extremely long
+        ${rawText.substring(0, 10000)}
 
-        Return ONLY a raw JSON object (no markdown, no backticks, no comments) following this exact schema:
+        Return ONLY a raw JSON object (no markdown, no backticks) following this exact schema:
         {
             "name": "Full Name",
             "role": "Current Job Title or Main Expertise",
             "email": "email@example.com",
             "phone": "Phone Number if found, else empty",
             "location": "City, State/Country if found, else empty",
-            "summary": "A 2-3 sentence impactful professional summary based on the resume.",
-            "skills": ["Skill1", "Skill2", "Skill3"], // Array of top technical/professional skills
+            "summary": "Extract a 2-3 sentence impactful professional summary based strictly on the resume text. DO NOT evaluate or enhance it.",
+            "skills": ["Skill1", "Skill2"], 
             "experience": [
                 {
                     "role": "Job Title",
                     "company": "Company Name",
-                    "date": "Start - End Date or Present",
-                    "points": ["Major achievement 1", "Major achievement 2"] // Max 3 impactful bullet points
+                    "date": "Start - End Date",
+                    "points": ["Achievement 1", "Achievement 2"] 
                 }
             ],
             "projects": [
                 {
                     "name": "Project Name",
-                    "tech": "Main tech stack like 'MERN' or 'ReactNode'",
-                    "desc": "Short 1 sentence description of the project"
+                    "tech": "Main tech stack",
+                    "desc": "Short 1 sentence description"
                 }
             ]
         }
         
-        Ensure any missing fields return empty strings/arrays, not null.`;
+        Ensure any missing fields return empty strings/arrays, not null. Output ONLY JSON.`;
 
         let structuredResponse = await generateContent(prompt);
 
