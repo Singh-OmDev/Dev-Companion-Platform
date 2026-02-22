@@ -33,14 +33,57 @@ const useDashboardStore = create((set) => ({
 
     fetchDashboardData: async () => {
         try {
-            const res = await api.get('/auth/me');
-            if (res.data) {
-                set((state) => ({
-                    user: { ...state.user, ...res.data }
-                }));
+            // Fetch profile data (contains stats), today's goals, and active projects
+            const [profileRes, goalsRes, projectsRes] = await Promise.all([
+                api.get('/profile'),
+                api.get('/goals'),
+                api.get('/projects')
+            ]);
+
+            const profile = profileRes.data;
+            const fetchedGoals = goalsRes.data;
+            const fetchedProjects = projectsRes.data;
+
+            // Optional: Fetch github activity if user has linked it
+            let fetchedActivity = [];
+            if (profile.socials?.github) {
+                try {
+                    const activityRes = await api.get(`/github/stats/${profile.socials.github}`);
+                    if (activityRes.data?.contributions) {
+                        // mapping to { date, count } matching frontend mock schema approx
+                        fetchedActivity = activityRes.data.contributions.map(c => ({
+                            date: c.day,
+                            count: c.commits || 0
+                        }));
+                    }
+                } catch (err) {
+                    console.log("Failed to fetch github activity for dashboard graph", err);
+                }
             }
+
+            set((state) => ({
+                user: {
+                    ...state.user,
+                    name: profile.name || profile.username || 'Developer',
+                    streak: profile.stats?.currentStreak || 0
+                },
+                stats: {
+                    totalCommits: profile.stats?.totalCommits || 0,
+                    leetcodeSolved: profile.stats?.leetcodeSolved?.total || 0,
+                    projectsCompleted: fetchedProjects.length || 0,
+                    hoursCoded: 0 // Mocked for now
+                },
+                goals: fetchedGoals.map(g => ({
+                    id: g._id,
+                    title: g.title,
+                    completed: g.isCompleted,
+                    type: g.type
+                })),
+                activity: fetchedActivity.length > 0 ? fetchedActivity : state.activity // keep mock if failed
+            }));
+
         } catch (error) {
-            console.error('Failed to fetch user data:', error);
+            console.error('Failed to fetch dashboard data:', error);
         }
     },
 

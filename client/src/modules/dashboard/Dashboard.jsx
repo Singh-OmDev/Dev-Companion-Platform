@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import useDashboardStore from '../../store/dashboardStore';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
@@ -20,7 +20,11 @@ const StatCard = ({ label, value, icon: Icon, trend }) => (
 );
 
 const Dashboard = () => {
-    const { user, stats, goals, activity } = useDashboardStore();
+    const { user, stats, goals, activity, fetchDashboardData } = useDashboardStore();
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, [fetchDashboardData]);
 
     return (
         <div className="space-y-8 animate-fade-in">

@@ -1,35 +1,58 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
-const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const { ClerkExpressWithAuth } = require('@clerk/clerk-sdk-node');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret_dev_companion_key';
+// @route   POST /api/auth/sync
+// @desc    Sync Clerk user to local MongoDB
+// @access  Private
+router.post('/sync', ClerkExpressWithAuth(), async (req, res) => {
+    try {
+        if (!req.auth || !req.auth.userId) {
+            return res.status(401).json({ msg: 'Unauthorized - No Clerk token' });
+        }
 
-// @route   GET /auth/github
-// @desc    Auth with GitHub
-router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+        const clerkId = req.auth.userId;
+        const { email, firstName, lastName, imageUrl } = req.body;
 
-// @route   GET /auth/github/callback
-// @desc    GitHub auth callback
-router.get('/github/callback',
-    passport.authenticate('github', { failureRedirect: '/' }),
-    (req, res) => {
-        // Successful authentication
-        const payload = {
-            id: req.user._id,
-            username: req.user.username,
-            avatarUrl: req.user.avatarUrl
-        };
+        let user = await User.findOne({ clerkId });
 
-        // Sign Token
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+        if (!user) {
+            // Check if user exists by email (if they signed up differently before)
+            if (email) {
+                user = await User.findOne({ email });
+            }
 
-        // Redirect to frontend with token
-        // In production, use a more secure method (e.g., cookie or limited-time code)
-        // For MVP, passing via query param to a specific frontend route is acceptable for now
-        res.redirect(`http://localhost:5173/auth/success?token=${token}`);
+            if (user) {
+                // Link existing user to Clerk
+                user.clerkId = clerkId;
+                user.avatarUrl = imageUrl || user.avatarUrl;
+                await user.save();
+            } else {
+                // Create brand new user
+                user = new User({
+                    clerkId,
+                    email: email || '',
+                    name: firstName ? `${firstName} ${lastName || ''}`.trim() : 'Developer',
+                    avatarUrl: imageUrl || '',
+                    username: email ? email.split('@')[0] : `user_${clerkId.slice(-5)}`
+                });
+                await user.save();
+            }
+        } else {
+            // Optionally update details on each login
+            if (imageUrl && !user.avatarUrl) {
+                user.avatarUrl = imageUrl;
+                await user.save();
+            }
+        }
+
+        res.json({ msg: 'User synced successfully', user });
+    } catch (err) {
+        console.error('Auth sync error:', err);
+        res.status(500).send('Server Error during sync');
     }
-);
+});
 
 const auth = require('../middleware/auth');
 
