@@ -18,9 +18,11 @@ router.get('/stats/:username', async (req, res) => {
             headers: { 'User-Agent': 'Dev-Companion-App' }
         };
 
-        // If credentials exist, append them to auth (though for public data standard Basic auth or just query params works)
-        // Best practice for server-to-server public data fetch is often params: client_id, client_secret
-        if (clientId && clientSecret) {
+        // Use Personal Access Token for 5000 req/hr limit
+        if (process.env.GITHUB_TOKEN) {
+            options.headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+        } else if (clientId && clientSecret) {
+            // Fallback (deprecated by GitHub but might still work slightly)
             options.params = {
                 client_id: clientId,
                 client_secret: clientSecret
@@ -160,7 +162,9 @@ router.post('/sync', auth, async (req, res) => {
         username = username.trim(); // Ensure no trailing spaces
         const options = { headers: { 'User-Agent': 'Dev-Companion-App' } };
 
-        if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+        if (process.env.GITHUB_TOKEN) {
+            options.headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+        } else if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
             options.params = {
                 client_id: process.env.GITHUB_CLIENT_ID,
                 client_secret: process.env.GITHUB_CLIENT_SECRET

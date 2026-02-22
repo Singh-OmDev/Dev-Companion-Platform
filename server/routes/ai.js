@@ -1,25 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 const auth = require('../middleware/auth');
 
-// Auth middleware replaced
-
-
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'mock_key');
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+// Initialize Groq
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY || 'mock_key'
+});
 
 const generateContent = async (prompt) => {
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('YOUR_API_KEY') || process.env.GEMINI_API_KEY === 'mock_key') {
-        return "AI Configuration Missing: Please add a valid GEMINI_API_KEY to your server .env file.";
+    if (!process.env.GROQ_API_KEY || process.env.GROQ_API_KEY === 'mock_key') {
+        return "AI Configuration Missing: Please add a valid GROQ_API_KEY to your server .env file.";
     }
+
     try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
+        const chatCompletion = await groq.chat.completions.create({
+            messages: [{ role: 'user', content: prompt }],
+            model: 'llama3-8b-8192', // Fast, cheap model perfect for these tasks
+            temperature: 0.7,
+        });
+        return chatCompletion.choices[0]?.message?.content || "";
     } catch (error) {
-        console.error("Gemini Error:", error);
+        console.error("Groq Error:", error);
         return "Thinking process interrupted. Please try again.";
     }
 };
