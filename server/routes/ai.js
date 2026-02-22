@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Groq = require('groq-sdk');
+const multer = require('multer');
+const pdfParse = require('pdf-parse');
 const auth = require('../middleware/auth');
 
 // Initialize Groq
@@ -25,6 +27,8 @@ const generateContent = async (prompt) => {
         return "Thinking process interrupted. Please try again.";
     }
 };
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 // @route   POST /api/ai/chat
 // @desc    Get AI completion
@@ -142,6 +146,76 @@ router.post('/resume-enhance', auth, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
+    }
+});
+
+// @route   POST /api/ai/parse-pdf
+// @desc    Parse uploaded resume PDF and structure it using AI
+router.post('/parse-pdf', auth, upload.single('resume'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ msg: 'No file uploaded' });
+        }
+
+        // 1. Extract raw text from PDF buffer
+        const pdfData = await pdfParse(req.file.buffer);
+        const rawText = pdfData.text;
+
+        if (!rawText || rawText.trim().length === 0) {
+            return res.status(400).json({ msg: 'Could not extract text from the PDF' });
+        }
+
+        // 2. Instruct AI to structure the text into exact JSON schema needed by frontend
+        const prompt = `You are a specialist parsing an uploaded resume PDF into strict JSON.
+        Extract the candidate's details from this raw PDF text:
+
+        ${rawText.substring(0, 10000)} // truncate to avoid token limits if extremely long
+
+        Return ONLY a raw JSON object (no markdown, no backticks, no comments) following this exact schema:
+        {
+            "name": "Full Name",
+            "role": "Current Job Title or Main Expertise",
+            "email": "email@example.com",
+            "phone": "Phone Number if found, else empty",
+            "location": "City, State/Country if found, else empty",
+            "summary": "A 2-3 sentence impactful professional summary based on the resume.",
+            "skills": ["Skill1", "Skill2", "Skill3"], // Array of top technical/professional skills
+            "experience": [
+                {
+                    "role": "Job Title",
+                    "company": "Company Name",
+                    "date": "Start - End Date or Present",
+                    "points": ["Major achievement 1", "Major achievement 2"] // Max 3 impactful bullet points
+                }
+            ],
+            "projects": [
+                {
+                    "name": "Project Name",
+                    "tech": "Main tech stack like 'MERN' or 'ReactNode'",
+                    "desc": "Short 1 sentence description of the project"
+                }
+            ]
+        }
+        
+        Ensure any missing fields return empty strings/arrays, not null.`;
+
+        let structuredResponse = await generateContent(prompt);
+
+        // Clean markdown formatting if Groq accidentally includes it
+        structuredResponse = structuredResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        let parsedData;
+        try {
+            parsedData = JSON.parse(structuredResponse);
+        } catch (e) {
+            console.error("Failed to parse Groq Resume output:", structuredResponse);
+            return res.status(500).json({ msg: 'AI failed to properly format the resume.' });
+        }
+
+        res.json({ success: true, data: parsedData });
+    } catch (err) {
+        console.error("Resume Parse Error:", err);
+        res.status(500).send('Server Error during resume parsing');
     }
 });
 

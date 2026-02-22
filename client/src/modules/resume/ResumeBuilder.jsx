@@ -3,14 +3,16 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { Download, Printer, Edit3, Sparkles } from 'lucide-react';
+import { Download, Printer, Edit3, Sparkles, UploadCloud } from 'lucide-react';
 import api from '../../services/api';
 import useDashboardStore from '../../store/dashboardStore';
 
 const ResumeBuilder = () => {
     const resumeRef = useRef();
+    const fileInputRef = useRef();
     const [isGenerating, setIsGenerating] = useState(false);
     const [isEnhancing, setIsEnhancing] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const { user } = useDashboardStore();
 
     // Mock Resume Data (Aggregated)
@@ -87,7 +89,7 @@ const ResumeBuilder = () => {
                 type: 'experience'
             });
 
-            setResumeData(prev => ({ // setResumeData function was missing from local state, need to fix that too!
+            setResumeData(prev => ({
                 ...prev,
                 summary: resSummary.data.enhanced,
                 experience: prev.experience.map((exp, i) =>
@@ -99,6 +101,45 @@ const ResumeBuilder = () => {
             console.error("AI Enhancement failed", err);
         } finally {
             setIsEnhancing(false);
+        }
+    };
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('resume', file);
+
+        try {
+            const response = await api.post('/ai/parse-pdf', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            if (response.data && response.data.success) {
+                // Ensure arrays exist even if AI returned missing ones
+                const parsed = response.data.data;
+                setResumeData({
+                    name: parsed.name || '',
+                    role: parsed.role || '',
+                    email: parsed.email || '',
+                    phone: parsed.phone || '',
+                    location: parsed.location || '',
+                    summary: parsed.summary || '',
+                    skills: parsed.skills || [],
+                    experience: parsed.experience || [],
+                    projects: parsed.projects || []
+                });
+            }
+        } catch (err) {
+            console.error("Resume Parse Error:", err);
+            alert("Failed to parse resume. Please ensure it's a valid PDF and try again.");
+        } finally {
+            setIsUploading(false);
+            e.target.value = null; // reset input
         }
     };
 
@@ -124,12 +165,31 @@ const ResumeBuilder = () => {
                     <Card>
                         <h3 className="font-bold mb-4">Content Source</h3>
                         <div className="flex flex-col gap-2">
-                            <label className="flex items-center gap-2 text-sm p-3 bg-surfaceHighlight rounded border border-primary/20">
-                                <input type="radio" name="source" defaultChecked className="text-primary" />
+                            <label className="flex items-center gap-2 text-sm p-3 bg-surfaceHighlight rounded border border-primary/20 cursor-pointer">
+                                <input type="radio" name="source" defaultChecked className="text-primary cursor-pointer" />
                                 <span>Auto-Sync (GitHub + Profile)</span>
                             </label>
-                            <label className="flex items-center gap-2 text-sm p-3 bg-surfaceHighlight rounded border border-border">
-                                <input type="radio" name="source" className="text-primary" />
+
+                            {/* Hidden file input */}
+                            <input
+                                type="file"
+                                accept=".pdf"
+                                className="hidden"
+                                ref={fileInputRef}
+                                onChange={handleFileUpload}
+                            />
+
+                            <label
+                                className="flex items-center gap-2 text-sm p-3 bg-surfaceHighlight rounded border border-border cursor-pointer hover:border-primary/50 transition-colors"
+                                onClick={() => fileInputRef.current.click()}
+                            >
+                                <input type="radio" name="source" className="text-primary pointer-events-none" checked={false} readOnly />
+                                <UploadCloud className="w-4 h-4 text-primary" />
+                                <span>{isUploading ? "Parsing PDF with AI..." : "Upload Resume PDF"}</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 text-sm p-3 bg-surfaceHighlight rounded border border-border cursor-pointer">
+                                <input type="radio" name="source" className="text-primary cursor-pointer" />
                                 <span>Manual Entry</span>
                             </label>
                         </div>
