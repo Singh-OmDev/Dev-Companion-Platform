@@ -64,6 +64,7 @@ const useDashboardStore = create((set) => ({
             set((state) => ({
                 user: {
                     ...state.user,
+                    ...profile,
                     name: profile.name || profile.username || 'Developer',
                     streak: profile.stats?.currentStreak || 0
                 },

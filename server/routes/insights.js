@@ -46,7 +46,7 @@ router.get('/', auth, async (req, res) => {
 
         // 4. Productivity Pulse (Mocked based on stats for now, ideally needs daily activity log)
         // Simulating a "Pulse" based on streak and total commits
-        const pulseScore = Math.min(100, (user.stats.currentStreak * 5) + (user.stats.totalCommits / 10));
+        const pulseScore = Math.min(100, ((user?.stats?.currentStreak || 0) * 5) + ((user?.stats?.totalCommits || 0) / 10));
 
         // 5. Activity Trend (Mocked 7-day trend - normally would aggregate from timestamps)
         const activityTrend = [

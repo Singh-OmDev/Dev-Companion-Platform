@@ -16,7 +16,7 @@ const generateContent = async (prompt) => {
     try {
         const chatCompletion = await groq.chat.completions.create({
             messages: [{ role: 'user', content: prompt }],
-            model: 'llama3-8b-8192', // Fast, cheap model perfect for these tasks
+            model: 'llama-3.1-8b-instant', // Latest active groq model
             temperature: 0.7,
         });
         return chatCompletion.choices[0]?.message?.content || "";

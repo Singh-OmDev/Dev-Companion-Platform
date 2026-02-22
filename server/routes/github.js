@@ -216,23 +216,20 @@ router.post('/sync', auth, async (req, res) => {
             }
         }
 
-        // Update User
-        user.stats = {
-            ...user.stats,
-            totalRepos,
-            totalCommits: user.stats.totalCommits + totalCommits, // Accumulate or Replace? Replace is safer if we re-sync often, but we only fetched recent events. 
-            // Better strategy: We can't easily get *TOTAL* lifetime commits from API without scraping. 
-            // So we will just set it to "Sum of repos size" or just keep it as "activity score". 
-            // Let's just use the recent activity count for now as "Recent Commits" or similar, 
-            // OR finding a field in user profile? Github API user object doesn't have total commits.
-            // Let's stick to accumulating if we can, or just setting it for the "Session". 
-            // For this UI, let's just set it to total events fetched for now to match "Recent Activity".
-            totalCommits: events.length,
-            currentStreak
-        };
+        // Update User Stats safely using Mongoose $set to avoid validation interference from legacy docs
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            {
+                $set: {
+                    'stats.totalRepos': totalRepos,
+                    'stats.totalCommits': (user.stats?.totalCommits || 0) + totalCommits,
+                    'stats.currentStreak': currentStreak
+                }
+            },
+            { new: true }
+        );
 
-        await user.save();
-        res.json(user.stats);
+        res.json(updatedUser.stats);
 
     } catch (err) {
         console.error('Github Sync Error:', err.message);
