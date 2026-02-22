@@ -11,7 +11,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'mock_key');
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 const generateContent = async (prompt) => {
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('YOUR_API_KEY')) {
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('YOUR_API_KEY') || process.env.GEMINI_API_KEY === 'mock_key') {
         return "AI Configuration Missing: Please add a valid GEMINI_API_KEY to your server .env file.";
     }
     try {

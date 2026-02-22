@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 import Layout from './components/Layout';
+import AuthSync from './components/AuthSync';
 import Dashboard from './modules/dashboard/Dashboard';
 import GithubStats from './modules/github/GithubStats';
 import LearningTracker from './modules/learning/LearningTracker';
@@ -31,23 +32,25 @@ function App() {
             element={
               <>
                 <SignedIn>
-                  <Layout>
-                    <Routes>
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/github" element={<GithubStats />} />
-                      <Route path="/learning" element={<LearningTracker />} />
-                      <Route path="/projects" element={<ProjectManager />} />
+                  <AuthSync>
+                    <Layout>
+                      <Routes>
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/github" element={<GithubStats />} />
+                        <Route path="/learning" element={<LearningTracker />} />
+                        <Route path="/projects" element={<ProjectManager />} />
 
-                      {/* Phase 2 Routes */}
-                      <Route path="/leetcode" element={<LeetCodeTracker />} />
-                      <Route path="/goals" element={<DailyGoals />} />
-                      <Route path="/resume" element={<ResumeBuilder />} />
-                      <Route path="/ai-mentor" element={<AIChat />} />
-                      <Route path="/roadmap" element={<PersonalizedRoadmap />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/insights" element={<DeveloperInsights />} />
-                    </Routes>
-                  </Layout>
+                        {/* Phase 2 Routes */}
+                        <Route path="/leetcode" element={<LeetCodeTracker />} />
+                        <Route path="/goals" element={<DailyGoals />} />
+                        <Route path="/resume" element={<ResumeBuilder />} />
+                        <Route path="/ai-mentor" element={<AIChat />} />
+                        <Route path="/roadmap" element={<PersonalizedRoadmap />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/insights" element={<DeveloperInsights />} />
+                      </Routes>
+                    </Layout>
+                  </AuthSync>
                 </SignedIn>
                 <SignedOut>
                   <RedirectToSignIn />
