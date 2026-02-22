@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Github, BookOpen, FolderKanban, Code2, Target, FileText, Bot, Activity, Sun, Moon } from 'lucide-react';
+import { UserButton } from '@clerk/clerk-react';
 import clsx from 'clsx';
 import NotificationDropdown from './NotificationDropdown';
 import useThemeStore from '../store/themeStore';
@@ -74,7 +75,7 @@ const Layout = ({ children }) => {
 
                 <div className="p-4 rounded-xl bg-surface border border-border">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-surfaceHighlight border border-border" />
+                        <UserButton afterSignOutUrl="/" />
                         <div className="flex flex-col">
                             <span className="text-sm font-bold">{user?.name || "User"}</span>
                             <span className="text-xs text-text-muted">Pro Plan</span>
