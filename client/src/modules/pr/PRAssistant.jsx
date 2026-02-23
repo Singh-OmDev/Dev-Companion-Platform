@@ -52,14 +52,19 @@ const PRAssistant = () => {
             setBranches(res.data);
 
             // Auto-select common base branch if available
-            if (res.data.includes('main')) setBaseBranch('main');
-            else if (res.data.includes('master')) setBaseBranch('master');
-            else setBaseBranch(res.data[0] || '');
+            let defaultBase = '';
+            if (res.data.includes('main')) defaultBase = 'main';
+            else if (res.data.includes('master')) defaultBase = 'master';
+            else defaultBase = res.data[0] || '';
 
-            // Auto-select head branch if there are multiple
+            setBaseBranch(defaultBase);
+
+            // Auto-select head branch ensuring it's different from base
             if (res.data.length > 1) {
-                const nonMain = res.data.find(b => b !== 'main' && b !== 'master');
-                if (nonMain) setHeadBranch(nonMain);
+                const differentBranch = res.data.find(b => b !== defaultBase);
+                if (differentBranch) setHeadBranch(differentBranch);
+            } else {
+                setHeadBranch(''); // Force them to create a branch or leave empty
             }
         } catch (err) {
             console.error(err);
@@ -170,7 +175,11 @@ const PRAssistant = () => {
                                     disabled={!selectedRepo || isLoadingBranches || isGenerating}
                                 >
                                     <option value="" disabled>Select base (e.g., main)</option>
-                                    {branches.map(b => <option key={`base-${b}`} value={b}>{b}</option>)}
+                                    {branches.map(b => (
+                                        <option key={`base-${b}`} value={b} disabled={b === headBranch}>
+                                            {b} {b === headBranch ? '(Used as Head)' : ''}
+                                        </option>
+                                    ))}
                                 </select>
                                 <p className="text-xs text-textSecondary mt-1">The branch you want to merge into.</p>
                             </div>
@@ -186,9 +195,20 @@ const PRAssistant = () => {
                                     disabled={!selectedRepo || isLoadingBranches || isGenerating}
                                 >
                                     <option value="" disabled>Select head (e.g., feature-xyz)</option>
-                                    {branches.map(b => <option key={`head-${b}`} value={b}>{b}</option>)}
+                                    {branches.map(b => (
+                                        <option key={`head-${b}`} value={b} disabled={b === baseBranch}>
+                                            {b} {b === baseBranch ? '(Used as Base)' : ''}
+                                        </option>
+                                    ))}
                                 </select>
                                 <p className="text-xs text-textSecondary mt-1">The branch containing your changes.</p>
+
+                                {branches.length === 1 && (
+                                    <p className="text-xs text-amber-500 mt-2 flex items-center gap-1">
+                                        <AlertCircle className="w-3 h-3" />
+                                        This repository only has 1 branch. You need at least 2 branches to make a PR.
+                                    </p>
+                                )}
                             </div>
                         </div>
 
