@@ -67,7 +67,6 @@ const Layout = ({ children }) => {
                     <SidebarItem to="/leetcode" icon={Code2} label="LeetCode" />
                     <SidebarItem to="/goals" icon={Target} label="Daily Goals" />
                     <SidebarItem to="/insights" icon={Activity} label="Insights" />
-                    <SidebarItem to="/resume" icon={FileText} label="Resume" />
 
                     <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2 px-2 mt-4">AI Systems</div>
                     <SidebarItem to="/ai-mentor" icon={Bot} label="AI Mentor" />
