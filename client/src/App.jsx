@@ -14,6 +14,7 @@ import AIChat from './modules/ai/AIChat';
 import PersonalizedRoadmap from './modules/ai/PersonalizedRoadmap';
 import Profile from './modules/profile/Profile';
 import DeveloperInsights from './modules/insights/DeveloperInsights';
+import MockInterview from './modules/interview/MockInterview';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -46,6 +47,7 @@ function App() {
                         <Route path="/resume" element={<ResumeBuilder />} />
                         <Route path="/ai-mentor" element={<AIChat />} />
                         <Route path="/roadmap" element={<PersonalizedRoadmap />} />
+                        <Route path="/interview" element={<MockInterview />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/insights" element={<DeveloperInsights />} />
                       </Routes>

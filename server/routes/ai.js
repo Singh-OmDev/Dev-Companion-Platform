@@ -287,4 +287,91 @@ router.get('/generate-goal', auth, async (req, res) => {
     }
 });
 
+// @route   POST /api/ai/interview/start
+// @desc    Start a new mock interview
+router.post('/interview/start', auth, async (req, res) => {
+    try {
+        const { topic } = req.body;
+        if (!topic) return res.status(400).json({ msg: 'Topic or Role is required' });
+
+        const prompt = `You are a Senior Technical Mock Interviewer. The user is interviewing for the following role/topic: "${topic}".
+        Generate the VERY FIRST technical interview question. 
+        It should be moderately difficult, realistic, and open-ended.
+        
+        Return ONLY a JSON object (no markdown, no conversational text) with this exact schema:
+        {
+            "question": "The interview question text"
+        }`;
+
+        let text = await generateContent(prompt);
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error("Failed to parse interview start output:", text);
+            return res.status(500).json({ msg: 'Failed to generate question' });
+        }
+
+        res.json({ success: true, question: data.question });
+    } catch (err) {
+        console.error("Interview Start Error:", err);
+        res.status(500).send('Server Error starting interview');
+    }
+});
+
+// @route   POST /api/ai/interview/answer
+// @desc    Grade an interview answer and generate the next question
+router.post('/interview/answer', auth, async (req, res) => {
+    try {
+        const { topic, question, answer, history } = req.body;
+        if (!topic || !question || !answer) {
+            return res.status(400).json({ msg: 'Topic, question, and answer are required' });
+        }
+
+        // history is an array of past Q&A pairs to give the AI context if needed
+        const historyText = history ? history.map(h => `Q: ${h.q}\nA: ${h.a}`).join('\n\n') : '';
+
+        const prompt = `You are a Senior Technical Mock Interviewer evaluating a candidate for: "${topic}".
+        
+        Here is the history of the interview so far:
+        ${historyText}
+
+        CURRENT QUESTION YOU ASKED: "${question}"
+        CANDIDATE'S ANSWER: "${answer}"
+
+        Evaluate the candidate's answer. Is it technically accurate? Is it complete? 
+        Then, formulate the next logical interview question (which could be a follow-up, or a new topic entirely).
+
+        Return ONLY a JSON object (no markdown, no conversational text) with this exact schema:
+        {
+            "score": 8, // A number from 1 to 10 grading the answer
+            "feedback": "Constructive feedback roughly 2-3 sentences long on what they did well and what they missed.",
+            "nextQuestion": "The next technical interview question"
+        }`;
+
+        let text = await generateContent(prompt);
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error("Failed to parse interview answer output:", text);
+            return res.status(500).json({ msg: 'Failed to grade answer' });
+        }
+
+        res.json({
+            success: true,
+            score: data.score,
+            feedback: data.feedback,
+            nextQuestion: data.nextQuestion
+        });
+    } catch (err) {
+        console.error("Interview Answer Error:", err);
+        res.status(500).send('Server Error grading answer');
+    }
+});
+
 module.exports = router;

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Github, BookOpen, FolderKanban, Code2, Target, FileText, Bot, Activity, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Github, BookOpen, FolderKanban, Code2, Target, FileText, Bot, Activity, Sun, Moon, Mic } from 'lucide-react';
 import { UserButton } from '@clerk/clerk-react';
 import clsx from 'clsx';
 import NotificationDropdown from './NotificationDropdown';
@@ -71,6 +71,7 @@ const Layout = ({ children }) => {
 
                     <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2 px-2 mt-4">AI Systems</div>
                     <SidebarItem to="/ai-mentor" icon={Bot} label="AI Mentor" />
+                    <SidebarItem to="/interview" icon={Mic} label="Mock Interview" />
                 </nav>
 
                 <div className="p-4 rounded-xl bg-surface border border-border">
