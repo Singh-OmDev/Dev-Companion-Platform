@@ -9,6 +9,7 @@ import LearningTracker from './modules/learning/LearningTracker';
 import ProjectManager from './modules/projects/ProjectManager';
 import LeetCodeTracker from './modules/leetcode/LeetCodeTracker';
 import DailyGoals from './modules/goals/DailyGoals';
+import PRAssistant from './modules/pr/PRAssistant';
 import AIChat from './modules/ai/AIChat';
 import PersonalizedRoadmap from './modules/ai/PersonalizedRoadmap';
 import Profile from './modules/profile/Profile';
@@ -43,6 +44,7 @@ function App() {
                         {/* Phase 2 Routes */}
                         <Route path="/leetcode" element={<LeetCodeTracker />} />
                         <Route path="/goals" element={<DailyGoals />} />
+                        <Route path="/pr-assistant" element={<PRAssistant />} />
                         <Route path="/ai-mentor" element={<AIChat />} />
                         <Route path="/roadmap" element={<PersonalizedRoadmap />} />
                         <Route path="/interview" element={<MockInterview />} />
