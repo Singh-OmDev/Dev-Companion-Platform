@@ -21,7 +21,7 @@ const StatCard = ({ label, value, icon: Icon, trend }) => (
 );
 
 const Dashboard = () => {
-    const { user, stats, goals, activity, fetchDashboardData } = useDashboardStore();
+    const { user, stats, goals, activity, projects, fetchDashboardData } = useDashboardStore();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -45,11 +45,10 @@ const Dashboard = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard label="Total Commits" value={stats.totalCommits} icon={GitCommit} trend="12%" />
-                <StatCard label="Problems Solved" value={stats.leetcodeSolved} icon={Code} trend="4%" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard label="Total Commits" value={stats.totalCommits} icon={GitCommit} />
+                <StatCard label="Problems Solved" value={stats.leetcodeSolved} icon={Code} />
                 <StatCard label="Projects" value={stats.projectsCompleted} icon={Trophy} />
-                <StatCard label="Hours Coded" value={stats.hoursCoded} icon={Activity} trend="8h" />
             </div>
 
             {/* Main Content Area */}
@@ -80,31 +79,41 @@ const Dashboard = () => {
                         </div>
                     </Card>
 
-                    {/* Active Projects (Placeholder) */}
+                    {/* Active Projects (Dynamic) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card hover className="relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4 opacity-10">
-                                <Code className="w-24 h-24" />
-                            </div>
-                            <Badge variant="primary" className="mb-4">Active</Badge>
-                            <h3 className="text-xl font-bold mb-2">Dev Companion OS</h3>
-                            <p className="text-text-muted text-sm mb-6">Building the ultimate developer productivity platform.</p>
-                            <div className="w-full bg-surfaceHighlight h-2 rounded-full mb-4 overflow-hidden">
-                                <div className="bg-primary h-full w-3/4" />
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                                <span className="text-text-muted">75% Complete</span>
-                                <Button variant="ghost" size="sm" className="p-0 hover:bg-transparent hover:text-primary">Resume <ArrowRight className="w-4 h-4 ml-1" /></Button>
-                            </div>
-                        </Card>
+                        {projects.length > 0 ? projects.slice(0, 3).map((project) => (
+                            <Card key={project._id || project.id} hover className="relative overflow-hidden cursor-pointer" onClick={() => navigate('/projects')}>
+                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                    <Code className="w-24 h-24" />
+                                </div>
+                                <Badge variant="primary" className="mb-4">Active</Badge>
+                                <h3 className="text-xl font-bold mb-2 truncate">{project.title}</h3>
+                                <p className="text-text-muted text-sm mb-6 line-clamp-2">{project.description}</p>
+                                <div className="flex items-center justify-between text-sm mt-auto">
+                                    <span className="text-text-muted">In Progress</span>
+                                    <Button variant="ghost" size="sm" className="p-0 hover:bg-transparent hover:text-primary">View <ArrowRight className="w-4 h-4 ml-1" /></Button>
+                                </div>
+                            </Card>
+                        )) : (
+                            <Card hover className="flex flex-col justify-center items-center text-center border-dashed cursor-pointer py-12" onClick={() => navigate('/projects')}>
+                                <div className="w-12 h-12 rounded-full bg-surfaceHighlight flex items-center justify-center mb-4 text-text-muted transition-colors hover:text-primary hover:bg-primary/10">
+                                    +
+                                </div>
+                                <h3 className="font-bold">New Project</h3>
+                                <p className="text-text-muted text-sm mt-1">Start tracking a new side-project.</p>
+                            </Card>
+                        )}
 
-                        <Card hover className="flex flex-col justify-center items-center text-center border-dashed">
-                            <div className="w-12 h-12 rounded-full bg-surfaceHighlight flex items-center justify-center mb-4 text-text-muted">
-                                +
-                            </div>
-                            <h3 className="font-bold">New Project</h3>
-                            <p className="text-text-muted text-sm mt-1">Start something new</p>
-                        </Card>
+                        {/* Always show the exact "+ New Project" card if they have less than 2 projects to fill the grid row nicely */}
+                        {projects.length >= 1 && projects.length < 2 && (
+                            <Card hover className="flex flex-col justify-center items-center text-center border-dashed cursor-pointer py-12" onClick={() => navigate('/projects')}>
+                                <div className="w-12 h-12 rounded-full bg-surfaceHighlight flex items-center justify-center mb-4 text-text-muted transition-colors hover:text-primary hover:bg-primary/10">
+                                    +
+                                </div>
+                                <h3 className="font-bold">New Project</h3>
+                                <p className="text-text-muted text-sm mt-1">Start tracking another side-project.</p>
+                            </Card>
+                        )}
                     </div>
                 </div>
 

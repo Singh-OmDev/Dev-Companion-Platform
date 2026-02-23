@@ -10,17 +10,23 @@ const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY || 'mock_key'
 });
 
-const generateContent = async (prompt) => {
+const generateContent = async (prompt, responseFormat = null) => {
     if (!process.env.GROQ_API_KEY || process.env.GROQ_API_KEY === 'mock_key') {
         return "AI Configuration Missing: Please add a valid GROQ_API_KEY to your server .env file.";
     }
 
     try {
-        const chatCompletion = await groq.chat.completions.create({
+        const options = {
             messages: [{ role: 'user', content: prompt }],
             model: 'llama-3.1-8b-instant', // Latest active groq model
             temperature: 0.7,
-        });
+        };
+
+        if (responseFormat) {
+            options.response_format = responseFormat;
+        }
+
+        const chatCompletion = await groq.chat.completions.create(options);
         return chatCompletion.choices[0]?.message?.content || "";
     } catch (error) {
         console.error("Groq Error:", error);
@@ -303,7 +309,7 @@ router.post('/interview/start', auth, async (req, res) => {
             "question": "The interview question text"
         }`;
 
-        let text = await generateContent(prompt);
+        let text = await generateContent(prompt, { type: "json_object" });
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
         let data;
@@ -351,7 +357,7 @@ router.post('/interview/answer', auth, async (req, res) => {
             "nextQuestion": "The next technical interview question"
         }`;
 
-        let text = await generateContent(prompt);
+        let text = await generateContent(prompt, { type: "json_object" });
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
         let data;

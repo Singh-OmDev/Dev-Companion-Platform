@@ -19,6 +19,7 @@ const useDashboardStore = create((set) => ({
         projectsCompleted: 7,
         hoursCoded: 120
     },
+    projects: [],
     activity: [
         { date: '2026-01-20', count: 5 },
         { date: '2026-01-21', count: 8 },
@@ -80,6 +81,7 @@ const useDashboardStore = create((set) => ({
                     completed: g.isCompleted,
                     type: g.type
                 })),
+                projects: fetchedProjects || [],
                 activity: fetchedActivity.length > 0 ? fetchedActivity : state.activity // keep mock if failed
             }));
 
