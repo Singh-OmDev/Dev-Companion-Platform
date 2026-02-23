@@ -44,6 +44,7 @@ app.use('/api/insights', require('./routes/insights'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/pr', require('./routes/pr'));
+app.use('/api/architecture', require('./routes/architecture'));
 
 // Initialize Cron Jobs
 const initCronJobs = require('./utils/cron');
