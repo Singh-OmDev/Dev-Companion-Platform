@@ -5,6 +5,42 @@ import { GitBranch, Github, Sparkles, AlertCircle, RefreshCw } from 'lucide-reac
 import api from '../../services/api';
 import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, MarkerType } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import dagre from 'dagre';
+
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+const getLayoutedElements = (nodes, edges, direction = 'TB') => {
+    const isHorizontal = direction === 'LR';
+    dagreGraph.setGraph({ rankdir: direction });
+
+    nodes.forEach((node) => {
+        // approximate dimensions of our custom styled nodes
+        dagreGraph.setNode(node.id, { width: 160, height: 100 });
+    });
+
+    edges.forEach((edge) => {
+        dagreGraph.setEdge(edge.source, edge.target);
+    });
+
+    dagre.layout(dagreGraph);
+
+    nodes.forEach((node) => {
+        const nodeWithPosition = dagreGraph.node(node.id);
+        node.targetPosition = isHorizontal ? 'left' : 'top';
+        node.sourcePosition = isHorizontal ? 'right' : 'bottom';
+
+        // Shift coordinates to center the node
+        node.position = {
+            x: nodeWithPosition.x - 160 / 2,
+            y: nodeWithPosition.y - 100 / 2,
+        };
+
+        return node;
+    });
+
+    return { nodes, edges };
+};
 
 const Cartographer = () => {
     const [repos, setRepos] = useState([]);
@@ -81,8 +117,8 @@ const Cartographer = () => {
                     className: `rounded-xl p-4 min-w-[150px] shadow-lg border-2 backdrop-blur-md transition-all hover:shadow-primary/20 ${bgColors}`,
                     data: {
                         label: (
-                            <div className="flex flex-col items-center justify-center text-center gap-1">
-                                <span className="text-xl">{icon}</span>
+                            <div className="flex flex-col items-center justify-center text-center gap-1 text-textPrimary">
+                                <span className="text-2xl mb-1">{icon}</span>
                                 <span className="font-bold text-sm tracking-wide">{node.data?.label || node.id}</span>
                                 {node.data?.type && (
                                     <span className="text-[10px] uppercase font-mono opacity-60 tracking-wider">
@@ -108,8 +144,14 @@ const Cartographer = () => {
                 },
             }));
 
-            setNodes(formattedNodes);
-            setEdges(formattedEdges);
+            const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+                formattedNodes,
+                formattedEdges,
+                'TB' // Top to Bottom
+            );
+
+            setNodes(layoutedNodes);
+            setEdges(layoutedEdges);
 
         } catch (err) {
             console.error(err);
