@@ -11,7 +11,7 @@ const TopicCard = ({ topic }) => (
         <div className="flex justify-between items-start mb-4">
             <div>
                 <Badge variant="success" className="mb-2 uppercase tracking-widest text-[10px]">{topic.category}</Badge>
-                <h3 className="text-xl font-bold">{topic.title}</h3>
+                <h3 className="text-xl font-bold">{topic.topic}</h3>
             </div>
             <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100"><MoreHorizontal className="w-4 h-4" /></Button>
         </div>

@@ -6,7 +6,7 @@ import { X, BookOpen } from 'lucide-react';
 
 const CreateTopicModal = ({ isOpen, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
-        title: '',
+        topic: '',
         category: 'Other',
         progress: 0
     });
@@ -16,7 +16,7 @@ const CreateTopicModal = ({ isOpen, onClose, onSubmit }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         onSubmit(formData);
-        setFormData({ title: '', category: 'Other', progress: 0 });
+        setFormData({ topic: '', category: 'Other', progress: 0 });
     };
 
     return (
@@ -35,8 +35,8 @@ const CreateTopicModal = ({ isOpen, onClose, onSubmit }) => {
                         <label className="block text-sm text-text-muted mb-1">Topic Title</label>
                         <Input
                             required
-                            value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            value={formData.topic}
+                            onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
                             placeholder="e.g. Advanced TypeScript"
                         />
                     </div>
