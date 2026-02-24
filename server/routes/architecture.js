@@ -1,31 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const Groq = require('groq-sdk');
 const auth = require('../middleware/auth');
-
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY || 'mock_key'
-});
-
-const generateContent = async (prompt, responseFormat = null) => {
-    if (!process.env.GROQ_API_KEY || process.env.GROQ_API_KEY === 'mock_key') {
-        throw new Error("AI Configuration Missing: Please add a valid GROQ_API_KEY to your server .env file.");
-    }
-
-    const options = {
-        messages: [{ role: 'user', content: prompt }],
-        model: 'llama-3.1-8b-instant',
-        temperature: 0.1, // Low temp for strictly structured JSON
-    };
-
-    if (responseFormat) {
-        options.response_format = responseFormat;
-    }
-
-    const chatCompletion = await groq.chat.completions.create(options);
-    return chatCompletion.choices[0]?.message?.content || "";
-};
 
 const getGithubHeaders = () => {
     const headers = {
@@ -84,61 +60,56 @@ router.post('/analyze', auth, async (req, res) => {
             return res.status(400).json({ msg: "Repository appears to be empty or nonexistent." });
         }
 
-        // 2. Filter out heavy noise (node_modules, dist, images, etc.) to save tokens
+        // 2. Filter directories only and ignore heavy noise
         const ignoredPaths = ['node_modules', '.git', 'dist', 'build', 'public', '.next'];
-        const ignoredExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.pdf', '.zip'];
 
-        const cleanPaths = tree
-            .filter(item => {
-                const isIgnoredDir = ignoredPaths.some(ignored => item.path.includes(ignored + '/'));
-                const isIgnoredExt = ignoredExtensions.some(ext => item.path.endsWith(ext));
-                return !isIgnoredDir && !isIgnoredExt;
-            })
+        const directories = tree
+            .filter(item => item.type === 'tree') // Directories only
+            .filter(item => !ignoredPaths.some(ignored => item.path.split('/').includes(ignored)))
             .map(item => item.path);
 
-        // Pre-truncate string if it's too massive for contextual bounds
-        let treeString = cleanPaths.join('\n');
-        if (treeString.length > 20000) {
-            treeString = treeString.substring(0, 20000) + "\n... [TRUNCATED]";
-        }
+        // 3. Algorithmic High-Level Architecture Parsing (Perfect Hierarchy)
+        const nodesMap = new Map();
+        const edgesMap = new Map();
 
-        // 3. Ask AI to map out the architecture in ReactFlow format
-        const prompt = `You are an expert Software Architect analyzing a given repository file structure.
-Your job is to map out the high-level architecture of this application for visualization in ReactFlow.
+        // Always create a root anchor
+        nodesMap.set('root', { id: 'root', data: { label: repo, type: 'root' } });
 
-CRITICAL RULES FOR ACCURACY:
-1. ONLY map the physical folder hierarchy. Do NOT invent hypothetical relationships.
-2. If a folder is inside "client", it MUST be connected to "client" or "frontend".
-3. If a folder is inside "server", it MUST be connected to "server" or "backend".
-4. Database/Models MUST NOT be connected to the frontend.
-5. Group modules logically by their true root directory. (e.g., grouping "client/src/components" into a "Frontend UI" node).
+        directories.forEach(path => {
+            const parts = path.split('/');
 
-You MUST return a STRICT JSON OBJECT containing exactly two arrays: "nodes" and "edges", following the ReactFlow specification.
+            // Only map the architectural surface (up to 2 levels deep) to prevent infinite sprawl
+            if (parts.length > 2) return;
 
-NODE FORMAT:
-- 'id': Unique string.
-- 'data': { 'label': "Name of Module", 'type': "category" }
-- Valid 'type' values: 'frontend', 'backend', 'database', 'api', 'service', 'config', 'root'.
+            const id = path;
+            const parentId = parts.length === 1 ? 'root' : parts.slice(0, -1).join('/');
+            const label = parts[parts.length - 1];
 
-EDGE FORMAT:
-- 'id': Unique string.
-- 'source': (Node id of the PARENT folder/module).
-- 'target': (Node id of the CHILD folder/module).
+            // Heuristics to classify modules like an AI would, but instantly and accurately
+            let type = 'service';
+            const lowerLabel = label.toLowerCase();
+            const lowerPath = path.toLowerCase();
 
-File Structure:
-\`\`\`
-${treeString}
-\`\`\`
+            if (lowerPath.includes('client') || lowerPath.includes('frontend') || lowerPath.includes('ui') || lowerPath.includes('components')) {
+                type = 'frontend';
+            } else if (lowerPath.includes('server') || lowerPath.includes('backend') || lowerPath.includes('api') || lowerPath.includes('routes') || lowerPath.includes('controllers')) {
+                type = 'backend';
+            }
+            if (lowerLabel.includes('db') || lowerLabel.includes('database') || lowerLabel.includes('model') || lowerLabel.includes('schema') || lowerLabel.includes('prisma')) {
+                type = 'database';
+            } else if (lowerLabel.includes('config') || lowerLabel.includes('env') || lowerLabel.includes('setup')) {
+                type = 'config';
+            }
 
-Return ONLY the JSON. No markdown wrapping (\`\`\`json), no conversational text. Start immediately with { "nodes": [...], "edges": [...] }`;
+            nodesMap.set(id, { id, data: { label, type } });
 
-        const aiResponseText = await generateContent(prompt, { type: 'json_object' });
-
-        const architectureData = JSON.parse(aiResponseText);
+            const edgeId = `${parentId}->${id}`;
+            edgesMap.set(edgeId, { id: edgeId, source: parentId, target: id });
+        });
 
         res.json({
-            nodes: architectureData.nodes || [],
-            edges: architectureData.edges || []
+            nodes: Array.from(nodesMap.values()),
+            edges: Array.from(edgesMap.values())
         });
 
     } catch (error) {
