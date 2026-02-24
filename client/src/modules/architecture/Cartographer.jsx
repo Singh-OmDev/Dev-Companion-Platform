@@ -274,16 +274,6 @@ const Cartographer = () => {
                     >
                         <Background color="#334155" gap={32} size={2} className="opacity-20" />
                         <Controls showInteractive={false} className="opacity-100 bg-white/10 backdrop-blur-md rounded-lg scale-150 origin-bottom-left m-4 shadow-xl border border-white/20" />
-                        <MiniMap
-                            className="bg-surface border border-border rounded-lg shadow-lg overflow-hidden"
-                            nodeColor={(n) => {
-                                if (n.className?.includes('indigo')) return '#818cf8';
-                                if (n.className?.includes('emerald')) return '#34d399';
-                                if (n.className?.includes('amber')) return '#fbbf24';
-                                return '#94a3b8';
-                            }}
-                            maskColor="rgba(15, 23, 42, 0.7)"
-                        />
                     </ReactFlow>
                 ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted/40 p-8 text-center bg-gradient-to-b from-transparent to-surfaceHighlight/20">
