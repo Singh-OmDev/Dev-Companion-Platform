@@ -12,11 +12,11 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 const getLayoutedElements = (nodes, edges, direction = 'TB') => {
     const isHorizontal = direction === 'LR';
-    dagreGraph.setGraph({ rankdir: direction, nodesep: 80, ranksep: 200 });
+    dagreGraph.setGraph({ rankdir: direction, nodesep: 100, ranksep: 250 });
 
     nodes.forEach((node) => {
-        // approximate dimensions of our custom styled nodes
-        dagreGraph.setNode(node.id, { width: 160, height: 100 });
+        // approximate dimensions of our larger custom styled nodes
+        dagreGraph.setNode(node.id, { width: 256, height: 140 });
     });
 
     edges.forEach((edge) => {
@@ -32,8 +32,8 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
         // Shift coordinates to center the node
         node.position = {
-            x: nodeWithPosition.x - 160 / 2,
-            y: nodeWithPosition.y - 100 / 2,
+            x: nodeWithPosition.x - 256 / 2,
+            y: nodeWithPosition.y - 140 / 2,
         };
 
         return node;
@@ -44,18 +44,18 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
 const ArchitectureNode = ({ data, targetPosition = Position.Top, sourcePosition = Position.Bottom }) => {
     return (
-        <div className={`rounded-xl p-4 min-w-[150px] shadow-lg border-2 backdrop-blur-md transition-all hover:shadow-primary/20 ${data.bgColors}`}>
-            <Handle type="target" position={targetPosition} className="w-2 h-2 !bg-emerald-500 border-none" />
-            <div className="flex flex-col items-center justify-center text-center gap-1 text-white">
-                <span className="text-2xl mb-1">{data.icon}</span>
-                <span className="font-bold text-sm tracking-wide text-white">{data.label}</span>
+        <div className={`rounded-2xl p-6 w-64 shadow-xl border-2 backdrop-blur-md transition-transform hover:scale-105 hover:shadow-primary/30 ${data.bgColors}`}>
+            <Handle type="target" position={targetPosition} className="w-3 h-3 !bg-emerald-500 border-none" />
+            <div className="flex flex-col items-center justify-center text-center gap-2 text-white">
+                <span className="text-4xl mb-2">{data.icon}</span>
+                <span className="font-bold text-lg tracking-wide text-white break-words">{data.label}</span>
                 {data.type && (
-                    <span className="text-[10px] uppercase font-mono opacity-80 tracking-wider text-white">
+                    <span className="text-xs uppercase font-mono opacity-80 tracking-widest text-white/90">
                         {data.type}
                     </span>
                 )}
             </div>
-            <Handle type="source" position={sourcePosition} className="w-2 h-2 !bg-emerald-500 border-none" />
+            <Handle type="source" position={sourcePosition} className="w-3 h-3 !bg-emerald-500 border-none" />
         </div>
     );
 };
@@ -230,7 +230,7 @@ const Cartographer = () => {
                 </Button>
             </Card>
 
-            <Card className="flex-1 !p-0 overflow-hidden relative border-border/50 shadow-2xl bg-background">
+            <Card className="flex-1 !p-0 overflow-hidden relative border-border/50 shadow-2xl bg-background min-h-[500px]">
                 {nodes.length > 0 ? (
                     <ReactFlow
                         nodes={nodes}
@@ -241,10 +241,11 @@ const Cartographer = () => {
                         fitView
                         className="bg-transparent"
                         minZoom={0.2}
-                        maxZoom={4}
+                        maxZoom={2}
+                        defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
                     >
-                        <Background color="#334155" gap={24} size={2} className="opacity-20" />
-                        <Controls className="fill-text-muted bg-surface border border-border rounded-lg shadow-lg" showInteractive={false} />
+                        <Background color="#334155" gap={32} size={2} className="opacity-20" />
+                        <Controls showInteractive={false} className="opacity-80 hover:opacity-100 transition-opacity" />
                         <MiniMap
                             className="bg-surface border border-border rounded-lg shadow-lg overflow-hidden"
                             nodeColor={(n) => {
