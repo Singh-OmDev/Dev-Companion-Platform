@@ -3,7 +3,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { GitBranch, Github, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
 import api from '../../services/api';
-import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, MarkerType } from '@xyflow/react';
+import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, MarkerType, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
 
@@ -41,6 +41,26 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
     return { nodes, edges };
 };
+
+const ArchitectureNode = ({ data }) => {
+    return (
+        <div className={`rounded-xl p-4 min-w-[150px] shadow-lg border-2 backdrop-blur-md transition-all hover:shadow-primary/20 ${data.bgColors}`}>
+            <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-emerald-500 border-none" />
+            <div className="flex flex-col items-center justify-center text-center gap-1 text-white">
+                <span className="text-2xl mb-1">{data.icon}</span>
+                <span className="font-bold text-sm tracking-wide text-white">{data.label}</span>
+                {data.type && (
+                    <span className="text-[10px] uppercase font-mono opacity-80 tracking-wider text-white">
+                        {data.type}
+                    </span>
+                )}
+            </div>
+            <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-emerald-500 border-none" />
+        </div>
+    );
+};
+
+const nodeTypes = { architecture: ArchitectureNode };
 
 const Cartographer = () => {
     const [repos, setRepos] = useState([]);
@@ -99,34 +119,27 @@ const Cartographer = () => {
                 // Simple heuristic styling based on the AI's type assignment
                 const type = (node.data?.type || '').toLowerCase();
                 if (type.includes('frontend') || type.includes('ui') || type.includes('client')) {
-                    bgColors = 'bg-indigo-900/40 border-indigo-500/50 text-indigo-200';
+                    bgColors = 'bg-indigo-900 border-indigo-500';
                     icon = '🖥️';
                 } else if (type.includes('backend') || type.includes('api') || type.includes('server')) {
-                    bgColors = 'bg-emerald-900/40 border-emerald-500/50 text-emerald-200';
+                    bgColors = 'bg-emerald-900 border-emerald-500';
                     icon = '⚙️';
                 } else if (type.includes('database') || type.includes('model') || type.includes('schema')) {
-                    bgColors = 'bg-amber-900/40 border-amber-500/50 text-amber-200';
+                    bgColors = 'bg-amber-900 border-amber-500';
                     icon = '🗄️';
                 } else if (type.includes('config') || type.includes('env')) {
-                    bgColors = 'bg-slate-800/60 border-slate-500/50 text-slate-300';
+                    bgColors = 'bg-slate-800 border-slate-500';
                     icon = '🔧';
                 }
 
                 return {
                     ...node,
-                    className: `rounded-xl p-4 min-w-[150px] shadow-lg border-2 backdrop-blur-md transition-all hover:shadow-primary/20 ${bgColors}`,
+                    type: 'architecture',
                     data: {
-                        label: (
-                            <div className="flex flex-col items-center justify-center text-center gap-1 text-textPrimary">
-                                <span className="text-2xl mb-1">{icon}</span>
-                                <span className="font-bold text-sm tracking-wide">{node.data?.label || node.id}</span>
-                                {node.data?.type && (
-                                    <span className="text-[10px] uppercase font-mono opacity-60 tracking-wider">
-                                        {node.data.type}
-                                    </span>
-                                )}
-                            </div>
-                        )
+                        label: node.data?.label || node.id,
+                        type: node.data?.type || '',
+                        bgColors,
+                        icon
                     }
                 };
             });
@@ -222,6 +235,7 @@ const Cartographer = () => {
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
+                        nodeTypes={nodeTypes}
                         onNodesChange={onNodesChange}
                         onEdgesChange={onEdgesChange}
                         fitView
