@@ -12,7 +12,7 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 const getLayoutedElements = (nodes, edges, direction = 'TB') => {
     const isHorizontal = direction === 'LR';
-    dagreGraph.setGraph({ rankdir: direction });
+    dagreGraph.setGraph({ rankdir: direction, nodesep: 80, ranksep: 200 });
 
     nodes.forEach((node) => {
         // approximate dimensions of our custom styled nodes
@@ -42,10 +42,10 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
     return { nodes, edges };
 };
 
-const ArchitectureNode = ({ data }) => {
+const ArchitectureNode = ({ data, targetPosition = Position.Top, sourcePosition = Position.Bottom }) => {
     return (
         <div className={`rounded-xl p-4 min-w-[150px] shadow-lg border-2 backdrop-blur-md transition-all hover:shadow-primary/20 ${data.bgColors}`}>
-            <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-emerald-500 border-none" />
+            <Handle type="target" position={targetPosition} className="w-2 h-2 !bg-emerald-500 border-none" />
             <div className="flex flex-col items-center justify-center text-center gap-1 text-white">
                 <span className="text-2xl mb-1">{data.icon}</span>
                 <span className="font-bold text-sm tracking-wide text-white">{data.label}</span>
@@ -55,7 +55,7 @@ const ArchitectureNode = ({ data }) => {
                     </span>
                 )}
             </div>
-            <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-emerald-500 border-none" />
+            <Handle type="source" position={sourcePosition} className="w-2 h-2 !bg-emerald-500 border-none" />
         </div>
     );
 };
@@ -160,7 +160,7 @@ const Cartographer = () => {
             const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
                 formattedNodes,
                 formattedEdges,
-                'TB' // Top to Bottom
+                'LR' // Left to Right
             );
 
             setNodes(layoutedNodes);
