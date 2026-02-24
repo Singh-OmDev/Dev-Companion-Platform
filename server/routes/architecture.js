@@ -104,17 +104,26 @@ router.post('/analyze', auth, async (req, res) => {
 
         // 3. Ask AI to map out the architecture in ReactFlow format
         const prompt = `You are an expert Software Architect analyzing a given repository file structure.
-I need you to map out the high-level architecture of this application for visualization in ReactFlow.
+Your job is to map out the high-level architecture of this application for visualization in ReactFlow.
 
-Do NOT map every single file. Group them into logical "Modules", "Services", "Frontend", "Backend", "Database Models", "Routes", etc.
+CRITICAL RULES FOR ACCURACY:
+1. ONLY map the physical folder hierarchy. Do NOT invent hypothetical relationships.
+2. If a folder is inside "client", it MUST be connected to "client" or "frontend".
+3. If a folder is inside "server", it MUST be connected to "server" or "backend".
+4. Database/Models MUST NOT be connected to the frontend.
+5. Group modules logically by their true root directory. (e.g., grouping "client/src/components" into a "Frontend UI" node).
 
 You MUST return a STRICT JSON OBJECT containing exactly two arrays: "nodes" and "edges", following the ReactFlow specification.
 
-RULES:
-1. Every node must have an 'id', 'position' ({x, y} coordinates - lay them out reasonably to look like a tree or flow mapping left-to-right or top-to-bottom), and 'data' ({label: "Name of Module", type: "category"}).
-2. Node typologies can be: 'frontend', 'backend', 'database', 'api', 'service', 'config'. Put this in \`data.type\`.
-3. Every edge must have an 'id', 'source' (node id), and 'target' (node id).
-4. Edge types can be default.
+NODE FORMAT:
+- 'id': Unique string.
+- 'data': { 'label': "Name of Module", 'type': "category" }
+- Valid 'type' values: 'frontend', 'backend', 'database', 'api', 'service', 'config', 'root'.
+
+EDGE FORMAT:
+- 'id': Unique string.
+- 'source': (Node id of the PARENT folder/module).
+- 'target': (Node id of the CHILD folder/module).
 
 File Structure:
 \`\`\`
