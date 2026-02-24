@@ -160,7 +160,7 @@ const Cartographer = () => {
             const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
                 formattedNodes,
                 formattedEdges,
-                'LR' // Left to Right
+                'TB' // Top to Bottom
             );
 
             setNodes(layoutedNodes);
