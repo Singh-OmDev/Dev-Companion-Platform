@@ -175,7 +175,7 @@ const Cartographer = () => {
     };
 
     return (
-        <div className="space-y-6 animate-fade-in max-w-7xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
+        <div className="space-y-6 animate-fade-in max-w-7xl mx-auto h-[calc(100vh-4rem)] flex flex-col pb-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 shrink-0">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Repository Cartographer</h1>
@@ -240,12 +240,11 @@ const Cartographer = () => {
                         onEdgesChange={onEdgesChange}
                         fitView
                         className="bg-transparent"
-                        minZoom={0.2}
-                        maxZoom={2}
-                        defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
+                        minZoom={0.05}
+                        defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
                     >
                         <Background color="#334155" gap={32} size={2} className="opacity-20" />
-                        <Controls showInteractive={false} className="opacity-80 hover:opacity-100 transition-opacity" />
+                        <Controls showInteractive={false} className="opacity-100 bg-white/10 backdrop-blur-md rounded-lg scale-150 origin-bottom-left m-4 shadow-xl border border-white/20" />
                         <MiniMap
                             className="bg-surface border border-border rounded-lg shadow-lg overflow-hidden"
                             nodeColor={(n) => {
