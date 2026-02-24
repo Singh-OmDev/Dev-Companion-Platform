@@ -276,7 +276,7 @@ const Cartographer = () => {
                         <Controls
                             showInteractive={false}
                             fitViewOptions={{ padding: 0.2, minZoom: 0.5, maxZoom: 1.5 }}
-                            className="opacity-100 bg-surfaceHighlight backdrop-blur-md rounded-lg shadow-xl border border-border overflow-hidden [&>button]:bg-transparent [&>button]:text-text-muted [&>button]:border-b [&>button]:border-border/50 hover:[&>button]:bg-white/5"
+                            className="!bg-slate-900 border-none !shadow-2xl overflow-hidden rounded-md [&>button]:!bg-slate-800 [&>button]:!border-b [&>button]:!border-slate-700/50 hover:[&>button]:!bg-slate-700 [&>button>svg]:!fill-slate-300 [&>button>svg]:!max-w-[16px] [&>button>svg]:!max-h-[16px] transition-colors"
                         />
                     </ReactFlow>
                 ) : (
