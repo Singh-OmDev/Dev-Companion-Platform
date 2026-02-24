@@ -273,7 +273,11 @@ const Cartographer = () => {
                         selectionOnDrag={false}
                     >
                         <Background color="#334155" gap={32} size={2} className="opacity-20" />
-                        <Controls showInteractive={false} className="opacity-100 bg-white/10 backdrop-blur-md rounded-lg scale-150 origin-bottom-left m-4 shadow-xl border border-white/20" />
+                        <Controls
+                            showInteractive={false}
+                            fitViewOptions={{ padding: 0.2, minZoom: 0.5, maxZoom: 1.5 }}
+                            className="opacity-100 bg-surfaceHighlight backdrop-blur-md rounded-lg shadow-xl border border-border overflow-hidden [&>button]:bg-transparent [&>button]:text-text-muted [&>button]:border-b [&>button]:border-border/50 hover:[&>button]:bg-white/5"
+                        />
                     </ReactFlow>
                 ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted/40 p-8 text-center bg-gradient-to-b from-transparent to-surfaceHighlight/20">
