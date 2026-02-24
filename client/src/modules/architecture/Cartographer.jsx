@@ -44,18 +44,25 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
 const ArchitectureNode = ({ data, targetPosition = Position.Top, sourcePosition = Position.Bottom }) => {
     return (
-        <div className={`rounded-2xl p-6 w-64 shadow-xl border-2 backdrop-blur-md transition-transform hover:scale-105 hover:shadow-primary/30 ${data.bgColors}`}>
-            <Handle type="target" position={targetPosition} className="w-3 h-3 !bg-emerald-500 border-none" />
-            <div className="flex flex-col items-center justify-center text-center gap-2 text-white">
-                <span className="text-4xl mb-2">{data.icon}</span>
-                <span className="font-bold text-lg tracking-wide text-white break-words">{data.label}</span>
-                {data.type && (
-                    <span className="text-xs uppercase font-mono opacity-80 tracking-widest text-white/90">
-                        {data.type}
-                    </span>
-                )}
+        <div className={`rounded-2xl p-6 w-64 shadow-2xl border backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] bg-gradient-to-br ${data.bgColors}`}>
+            <Handle type="target" position={targetPosition} className="w-4 h-4 !bg-primary border-4 !border-surface shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-transform hover:scale-125" />
+
+            <div className="flex flex-col items-center justify-center text-center gap-3 text-white">
+                <div className="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-inner">
+                    <span className="text-5xl block drop-shadow-lg">{data.icon}</span>
+                </div>
+
+                <div className="space-y-1">
+                    <span className="font-extrabold text-xl tracking-wide text-white drop-shadow-md break-words block">{data.label}</span>
+                    {data.type && (
+                        <span className="inline-block px-3 py-1 rounded-full bg-black/30 border border-white/10 text-[10px] font-bold uppercase font-mono tracking-widest text-white/90 shadow-sm">
+                            {data.type}
+                        </span>
+                    )}
+                </div>
             </div>
-            <Handle type="source" position={sourcePosition} className="w-3 h-3 !bg-emerald-500 border-none" />
+
+            <Handle type="source" position={sourcePosition} className="w-4 h-4 !bg-primary border-4 !border-surface shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-transform hover:scale-125" />
         </div>
     );
 };
@@ -113,23 +120,35 @@ const Cartographer = () => {
 
             // Format nodes with custom styling based on their type
             const formattedNodes = res.data.nodes.map(node => {
-                let bgColors = 'bg-slate-800 border-slate-600';
+                // Heuristics to classify modules
+                let type = 'service';
+                let bgColors = 'from-slate-800 to-slate-900 border-slate-700 hover:border-slate-500';
                 let icon = '📁';
 
-                // Simple heuristic styling based on the AI's type assignment
-                const type = (node.data?.type || '').toLowerCase();
-                if (type.includes('frontend') || type.includes('ui') || type.includes('client')) {
-                    bgColors = 'bg-indigo-900 border-indigo-500';
+                const lowerLabel = (node.data?.label || node.id).toLowerCase();
+                const lowerPath = (node.data?.path || '').toLowerCase();
+                const repoName = repoData.name.toLowerCase();
+
+                if (lowerPath.includes('client') || lowerPath.includes('frontend') || lowerPath.includes('ui') || lowerPath.includes('components')) {
+                    type = 'frontend';
+                    bgColors = 'from-indigo-600 to-indigo-900 border-indigo-400/50 hover:border-indigo-300 shadow-[0_0_15px_rgba(79,70,229,0.2)]';
                     icon = '🖥️';
-                } else if (type.includes('backend') || type.includes('api') || type.includes('server')) {
-                    bgColors = 'bg-emerald-900 border-emerald-500';
+                } else if (lowerPath.includes('server') || lowerPath.includes('backend') || lowerPath.includes('api') || lowerPath.includes('routes') || lowerPath.includes('controllers')) {
+                    type = 'backend';
+                    bgColors = 'from-emerald-600 to-emerald-900 border-emerald-400/50 hover:border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]';
                     icon = '⚙️';
-                } else if (type.includes('database') || type.includes('model') || type.includes('schema')) {
-                    bgColors = 'bg-amber-900 border-amber-500';
+                } else if (lowerLabel.includes('db') || lowerLabel.includes('database') || lowerLabel.includes('model') || lowerLabel.includes('schema') || lowerLabel.includes('prisma')) {
+                    type = 'database';
+                    bgColors = 'from-amber-600 to-amber-900 border-amber-400/50 hover:border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)]';
                     icon = '🗄️';
-                } else if (type.includes('config') || type.includes('env')) {
-                    bgColors = 'bg-slate-800 border-slate-500';
+                } else if (lowerLabel.includes('config') || lowerLabel.includes('env') || lowerLabel.includes('setup')) {
+                    type = 'config';
+                    bgColors = 'from-slate-700 to-slate-800 border-slate-500 hover:border-slate-400';
                     icon = '🔧';
+                } else if (lowerLabel === 'root' || lowerLabel === repoName) {
+                    type = 'root';
+                    bgColors = 'from-blue-600 to-blue-950 border-blue-400/50 shadow-[0_0_20px_rgba(59,130,246,0.3)]';
+                    icon = '🚀';
                 }
 
                 return {
@@ -137,18 +156,24 @@ const Cartographer = () => {
                     type: 'architecture',
                     data: {
                         label: node.data?.label || node.id,
-                        type: node.data?.type || '',
+                        type,
                         bgColors,
                         icon
                     }
                 };
             });
 
-            // Format edges with animated styling
+            // Format edges with smooth curves, animated flow, and glowing shadow
             const formattedEdges = res.data.edges.map(edge => ({
                 ...edge,
+                type: 'smoothstep', // Gives it a PCB-like rounded right-angle look
                 animated: true,
-                style: { stroke: '#10b981', strokeWidth: 2, opacity: 0.6 },
+                style: {
+                    stroke: '#10b981',
+                    strokeWidth: 3,
+                    opacity: 0.8,
+                    filter: 'drop-shadow(0 0 5px rgba(16, 185, 129, 0.5))'
+                },
                 markerEnd: {
                     type: MarkerType.ArrowClosed,
                     width: 20,
