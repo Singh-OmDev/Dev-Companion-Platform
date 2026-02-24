@@ -239,9 +239,13 @@ const Cartographer = () => {
                         onNodesChange={onNodesChange}
                         onEdgesChange={onEdgesChange}
                         fitView
+                        fitViewOptions={{ padding: 0.2, minZoom: 0.5, maxZoom: 1.5 }}
                         className="bg-transparent"
                         minZoom={0.05}
-                        defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
+                        panOnScroll={true}
+                        zoomOnScroll={false}
+                        panOnDrag={true}
+                        selectionOnDrag={false}
                     >
                         <Background color="#334155" gap={32} size={2} className="opacity-20" />
                         <Controls showInteractive={false} className="opacity-100 bg-white/10 backdrop-blur-md rounded-lg scale-150 origin-bottom-left m-4 shadow-xl border border-white/20" />
