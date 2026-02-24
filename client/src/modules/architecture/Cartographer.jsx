@@ -113,7 +113,7 @@ const Cartographer = () => {
 
             // Format nodes with custom styling based on their type
             const formattedNodes = res.data.nodes.map(node => {
-                let bgColors = 'bg-surface border-border';
+                let bgColors = 'bg-slate-800 border-slate-600';
                 let icon = '📁';
 
                 // Simple heuristic styling based on the AI's type assignment
