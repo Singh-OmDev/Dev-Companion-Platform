@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { Sparkles, Plus, Loader2, ArrowRight, CheckCircle2, Trash2 } from 'lucide-react';
+import { Sparkles, Plus, Loader2, ArrowRight, CheckCircle2, Trash2, LayoutTemplate } from 'lucide-react';
 import api from '../../services/api';
 import KanbanBoard from './KanbanBoard';
 
@@ -92,11 +92,11 @@ const FeaturePipeline = () => {
             <div className="flex items-start justify-between">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-2">
-                        <Sparkles className="w-8 h-8 text-primary" />
-                        AI Feature Pipeline
+                        <LayoutTemplate className="w-8 h-8 text-primary" />
+                        Feature Scoping
                     </h1>
                     <p className="text-text-muted mt-2 max-w-2xl">
-                        Turn rough ideas into structured engineering tasks. Act as your own senior tech lead and stay perfectly organized.
+                        Convert feature requirements into a structured Kanban board of technical tickets.
                     </p>
                 </div>
             </div>
@@ -121,11 +121,11 @@ const FeaturePipeline = () => {
                         >
                             {generating ? (
                                 <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Brainstorming...
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing requirements...
                                 </>
                             ) : (
                                 <>
-                                    <Sparkles className="w-4 h-4 mr-2" /> Auto-Scope Feature
+                                    <LayoutTemplate className="w-4 h-4 mr-2" /> Generate Tickets
                                 </>
                             )}
                         </Button>
@@ -185,9 +185,9 @@ const FeaturePipeline = () => {
                         </div>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-text-muted p-12 text-center">
-                            <Sparkles className="w-16 h-16 mb-4 opacity-20" />
+                            <LayoutTemplate className="w-16 h-16 mb-4 opacity-20" />
                             <h2 className="text-xl font-bold text-white mb-2">Select or Create a Feature</h2>
-                            <p className="max-w-md">The AI will automatically break down your idea into a technical Kanban board ready for development.</p>
+                            <p className="max-w-md">Describe your feature requirements on the left to automatically generate a breakdown of technical tickets.</p>
                         </div>
                     )}
                 </div>
