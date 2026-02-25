@@ -43,7 +43,7 @@ const CreateProjectModal = ({ isOpen, onClose, onSubmit }) => {
                             required
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            placeholder="e.g. AI SaaS Platform"
+                            placeholder="e.g. B2B SaaS Platform"
                         />
                     </div>
 

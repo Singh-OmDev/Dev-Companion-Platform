@@ -18,7 +18,7 @@ const ReviewModal = ({ isOpen, onClose, reviewData, loading }) => {
 
                 <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <Sparkles className="w-6 h-6 text-primary" />
-                    AI Code Audit
+                    Automated Code Audit
                 </h2>
 
                 {loading ? (
@@ -107,7 +107,7 @@ const ProjectCard = ({ project, onReview }) => {
                     )}
                 </div>
                 <Button size="sm" variant="ghost" className="text-xs group/btn" onClick={() => onReview(project)}>
-                    <Sparkles className="w-3 h-3 mr-1 group-hover/btn:text-primary transition-colors" /> AI Review
+                    <Sparkles className="w-3 h-3 mr-1 group-hover/btn:text-primary transition-colors" /> Code Review
                 </Button>
             </div>
         </Card>

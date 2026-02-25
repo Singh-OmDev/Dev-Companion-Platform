@@ -3,7 +3,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Input from '../../components/ui/Input';
-import { Target, CheckCircle, Circle, Flame, Plus, Trash2, Sparkles } from 'lucide-react';
+import { Target, CheckCircle, Circle, Flame, Plus, Trash2, Zap } from 'lucide-react';
 import clsx from 'clsx';
 
 import api from '../../services/api';
@@ -52,9 +52,9 @@ const DailyGoals = () => {
     const addGoal = async () => {
         if (!newGoal.trim()) return;
         try {
-            // Send the actual goal type if it was AI generated, else default to 'other'
-            const type = newGoal.includes('[AI]') ? 'learning' : 'other';
-            const cleanTitle = newGoal.replace('[AI] ', '');
+            // Send the actual goal type if it was Auto generated, else default to 'other'
+            const type = newGoal.includes('[Auto]') ? 'learning' : 'other';
+            const cleanTitle = newGoal.replace('[Auto] ', '');
 
             const res = await api.post('/goals', { title: cleanTitle, type });
             setGoals([...goals, res.data]);
@@ -69,9 +69,9 @@ const DailyGoals = () => {
         try {
             const res = await api.get('/ai/generate-goal');
             // Populate the input with the suggested goal
-            setNewGoal(`[AI] ${res.data.title}`);
+            setNewGoal(`[Auto] ${res.data.title}`);
         } catch (err) {
-            console.error("Failed to generate AI goal", err);
+            console.error("Failed to generate goal", err);
         } finally {
             setGeneratingAI(false);
         }
@@ -120,10 +120,10 @@ const DailyGoals = () => {
                         value={newGoal}
                         onChange={(e) => setNewGoal(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && addGoal()}
-                        className={newGoal.startsWith('[AI]') ? 'border-primary text-primary' : ''}
+                        className={newGoal.startsWith('[Auto]') ? 'border-primary text-primary' : ''}
                     />
                     <Button onClick={generateAIGoal} variant="secondary" disabled={generatingAI} title="Auto-Suggest Goal">
-                        {generatingAI ? <Sparkles className="w-5 h-5 animate-spin text-primary" /> : <Sparkles className="w-5 h-5 text-primary" />}
+                        {generatingAI ? <Zap className="w-5 h-5 animate-spin text-primary" /> : <Zap className="w-5 h-5 text-primary" />}
                     </Button>
                     <Button onClick={addGoal} variant="primary"><Plus className="w-5 h-5" /></Button>
                 </div>

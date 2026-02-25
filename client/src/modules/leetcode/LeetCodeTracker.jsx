@@ -31,7 +31,7 @@ const LeetCodeTracker = () => {
             const res = await api.get(`/leetcode/${username}`);
             setStats(res.data);
 
-            // Fetch AI Recommendations in background
+            // Fetch Recommendations in background
             api.get(`/leetcode/${username}/recommendations`).then(sugRes => {
                 setSuggestions(sugRes.data);
                 setLoadingSuggestions(false);
@@ -151,14 +151,14 @@ const LeetCodeTracker = () => {
                                 <h3 className="text-lg font-bold flex items-center gap-2">
                                     <Award className="w-5 h-5 text-secondary" /> Suggestions
                                 </h3>
-                                <Badge variant="primary">AI Recommended</Badge>
+                                <Badge variant="primary">Recommended</Badge>
                             </div>
 
                             <div className="space-y-3">
                                 {loadingSuggestions ? (
                                     <div className="flex flex-col items-center justify-center py-8 text-text-muted space-y-3 animate-fade-in">
                                         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                                        <p className="text-sm">AI is researching your recent submissions...</p>
+                                        <p className="text-sm">Synthesizing personalized recommendations...</p>
                                     </div>
                                 ) : suggestions && suggestions.length > 0 ? (
                                     suggestions.map((sug, i) => (
@@ -169,15 +169,15 @@ const LeetCodeTracker = () => {
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className={`w-8 h-8 rounded flex items-center justify-center font-bold text-xs ${sug.difficulty === 'E' ? 'bg-[#00B8A3]/20 text-[#00B8A3]' :
-                                                        sug.difficulty === 'M' ? 'bg-[#FFC01E]/20 text-[#FFC01E]' :
-                                                            'bg-[#FF375F]/20 text-[#FF375F]'
+                                                    sug.difficulty === 'M' ? 'bg-[#FFC01E]/20 text-[#FFC01E]' :
+                                                        'bg-[#FF375F]/20 text-[#FF375F]'
                                                     }`}>
                                                     {sug.difficulty}
                                                 </div>
                                                 <div>
                                                     <div className={`font-medium transition-colors ${sug.difficulty === 'E' ? 'group-hover:text-[#00B8A3]' :
-                                                            sug.difficulty === 'M' ? 'group-hover:text-[#FFC01E]' :
-                                                                'group-hover:text-[#FF375F]'
+                                                        sug.difficulty === 'M' ? 'group-hover:text-[#FFC01E]' :
+                                                            'group-hover:text-[#FF375F]'
                                                         }`}>
                                                         {sug.title}
                                                     </div>

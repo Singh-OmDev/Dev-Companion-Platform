@@ -204,7 +204,7 @@ const Cartographer = () => {
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 shrink-0">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Repository Cartographer</h1>
-                    <p className="text-textSecondary mt-1">AI-powered architectural visualization of your codebases.</p>
+                    <p className="text-textSecondary mt-1">Automated architectural visualization of your codebases.</p>
                 </div>
             </div>
 
@@ -283,7 +283,7 @@ const Cartographer = () => {
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted/40 p-8 text-center bg-gradient-to-b from-transparent to-surfaceHighlight/20">
                         <GitBranch className="w-24 h-24 mb-6 opacity-20" />
                         <h3 className="text-xl font-bold mb-2">The Canvas is Empty</h3>
-                        <p className="max-w-md">Select an open-source or personal repository above and our AI will recursively scan its structure to build an interactive architectural node map.</p>
+                        <p className="max-w-md">Select an open-source or personal repository above and the system will recursively scan its structure to build an interactive architectural node map.</p>
                     </div>
                 )}
             </Card>

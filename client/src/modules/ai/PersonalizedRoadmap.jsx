@@ -32,10 +32,10 @@ const PersonalizedRoadmap = () => {
             <div className="text-center space-y-4">
                 <h1 className="text-4xl font-bold flex items-center justify-center gap-3">
                     <Map className="w-10 h-10 text-primary" />
-                    AI Architect
+                    Technical Architect
                 </h1>
                 <p className="text-text-muted text-lg max-w-2xl mx-auto">
-                    Define your ambition. Our AI will construct the optimal path to mastery, tailored to your current skill level.
+                    Define your ambition. The system will construct the optimal path to mastery, tailored to your current skill level.
                 </p>
             </div>
 

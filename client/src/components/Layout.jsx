@@ -69,10 +69,10 @@ const Layout = ({ children }) => {
                     <SidebarItem to="/goals" icon={Target} label="Daily Goals" />
                     <SidebarItem to="/insights" icon={Activity} label="Insights" />
 
-                    <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2 px-2 mt-4">AI Systems</div>
+                    <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2 px-2 mt-4">Advanced Systems</div>
                     <SidebarItem to="/pr-assistant" icon={GitPullRequest} label="Smart PR" />
                     <SidebarItem to="/cartographer" icon={Compass} label="Architecture Map" />
-                    <SidebarItem to="/ai-mentor" icon={Bot} label="AI Mentor" />
+                    <SidebarItem to="/ai-mentor" icon={Bot} label="Technical Mentor" />
                     <SidebarItem to="/interview" icon={Mic} label="Mock Interview" />
                 </nav>
 

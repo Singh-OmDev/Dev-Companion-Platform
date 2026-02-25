@@ -142,7 +142,7 @@ const Dashboard = () => {
                         <Button variant="secondary" className="w-full mt-6 text-sm">Add New Goal</Button>
                     </Card>
 
-                    {/* AI Suggestions Widget */}
+                    {/* Smart Suggestions Widget */}
                     <SmartSuggestions />
                 </div>
             </div>

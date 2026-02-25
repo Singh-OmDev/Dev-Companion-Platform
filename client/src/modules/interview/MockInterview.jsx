@@ -104,8 +104,8 @@ const MockInterview = () => {
         <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">AI Mock Interviewer</h1>
-                    <p className="text-textSecondary mt-1">Practice technical interviews with an AI Senior Developer.</p>
+                    <h1 className="text-3xl font-bold tracking-tight">Technical Mock Interviewer</h1>
+                    <p className="text-textSecondary mt-1">Practice technical interviews with an automated testing system.</p>
                 </div>
                 {isInterviewing && (
                     <div className="flex items-center gap-4">
@@ -125,7 +125,7 @@ const MockInterview = () => {
                     </div>
                     <h2 className="text-2xl font-bold mb-2">Ready to practice?</h2>
                     <p className="text-textSecondary max-w-md mx-auto mb-8">
-                        Enter a job role, specific technology, or topic you want to be interviewed on. The AI will ask you technical questions, grade your answers, and provide feedback.
+                        Enter a job role, specific technology, or topic you want to be interviewed on. The system will ask you technical questions, grade your answers, and provide feedback.
                     </p>
 
                     <div className="w-full max-w-md flex flex-col gap-4">
@@ -177,12 +177,12 @@ const MockInterview = () => {
                                             <p className="whitespace-pre-wrap">{item.a}</p>
                                         </div>
 
-                                        {/* AI Feedback Box */}
+                                        {/* System Feedback Box */}
                                         <div className="bg-background border border-border rounded-lg p-4 max-w-[85%] text-left w-full relative overflow-hidden">
                                             <div className={`absolute top-0 left-0 w-1 h-full ${item.score >= 7 ? 'bg-green-500' : item.score >= 5 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
                                             <div className="flex items-center justify-between mb-2">
                                                 <h5 className="text-xs font-bold text-textSecondary uppercase tracking-wider flex items-center gap-1">
-                                                    <CheckCircle className="w-3 h-3" /> AI Feedback
+                                                    <CheckCircle className="w-3 h-3" /> System Evaluation
                                                 </h5>
                                                 <span className={`font-bold text-sm ${getScoreColor(item.score)}`}>Score: {item.score}/10</span>
                                             </div>
