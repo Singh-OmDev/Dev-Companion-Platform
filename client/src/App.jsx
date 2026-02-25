@@ -14,6 +14,7 @@ import Cartographer from './modules/architecture/Cartographer';
 import AIChat from './modules/ai/AIChat';
 import PersonalizedRoadmap from './modules/ai/PersonalizedRoadmap';
 import Profile from './modules/profile/Profile';
+import FeaturePipeline from './modules/features/FeaturePipeline';
 import DeveloperInsights from './modules/insights/DeveloperInsights';
 import MockInterview from './modules/interview/MockInterview';
 
@@ -41,6 +42,7 @@ function App() {
                         <Route path="/github" element={<GithubStats />} />
                         <Route path="/learning" element={<LearningTracker />} />
                         <Route path="/projects" element={<ProjectManager />} />
+                        <Route path="/features" element={<FeaturePipeline />} />
 
                         {/* Phase 2 Routes */}
                         <Route path="/leetcode" element={<LeetCodeTracker />} />

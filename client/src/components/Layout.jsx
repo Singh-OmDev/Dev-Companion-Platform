@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Github, BookOpen, FolderKanban, Code2, Target, FileText, Bot, Activity, Sun, Moon, Mic, GitPullRequest, Compass } from 'lucide-react';
+import { LayoutDashboard, Github, BookOpen, FolderKanban, Code2, Target, FileText, Bot, Activity, Sun, Moon, Mic, GitPullRequest, Compass, KanbanSquare } from 'lucide-react';
 import { UserButton } from '@clerk/clerk-react';
 import clsx from 'clsx';
 import NotificationDropdown from './NotificationDropdown';
@@ -62,6 +62,7 @@ const Layout = ({ children }) => {
                     <SidebarItem to="/github" icon={Github} label="GitHub Stats" />
                     <SidebarItem to="/learning" icon={BookOpen} label="Learning" />
                     <SidebarItem to="/projects" icon={FolderKanban} label="Projects" />
+                    <SidebarItem to="/features" icon={KanbanSquare} label="Feature Pipeline" />
 
                     <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2 px-2 mt-6">Power</div>
                     <SidebarItem to="/leetcode" icon={Code2} label="LeetCode" />
