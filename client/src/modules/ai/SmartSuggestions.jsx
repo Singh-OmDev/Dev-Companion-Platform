@@ -39,25 +39,30 @@ const SmartSuggestions = () => {
     };
 
     return (
-        <Card className="border-primary/20 bg-gradient-to-br from-surface to-surfaceHighlight/30">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+        <Card className="rounded-3xl border-primary/30 shadow-[0_0_20px_rgba(16,185,129,0.1)] bg-gradient-to-br from-surface to-primary/5 p-8 relative overflow-hidden">
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-primary/20 rounded-full blur-[50px] pointer-events-none" />
+
+            <div className="flex items-center justify-between mb-6 relative z-10 border-b border-primary/20 pb-4">
+                <h2 className="text-2xl font-bold flex items-center gap-3">
+                    <div className="p-2 bg-primary/20 rounded-lg">
+                        <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                    </div>
                     Smart Insights
                 </h2>
-                <Badge variant="primary">3 New</Badge>
+                <Badge variant="primary" className="bg-primary hover:bg-primary text-black font-bold shadow-[0_0_10px_rgba(16,185,129,0.4)]">3 New</Badge>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4 relative z-10">
                 {suggestions.map((s) => (
-                    <div key={s.id} className="p-3 rounded-lg bg-surface/50 border border-border hover:border-primary/50 transition-colors flex items-center justify-between group">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-surfaceHighlight flex items-center justify-center">
+                    <div key={s.id} className="p-4 rounded-2xl bg-surface/80 backdrop-blur-md border border-primary/10 hover:border-primary/50 transition-all duration-300 flex items-center justify-between group hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] hover:-translate-y-0.5">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-surfaceHighlight flex items-center justify-center group-hover:bg-primary/20 transition-colors group-hover:scale-110 duration-300">
                                 {getIcon(s.type)}
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-white">{s.message}</p>
-                                <p className="text-xs text-text-muted">{s.action}</p>
+                                <p className="text-base font-bold text-white leading-tight mb-1 group-hover:text-primary transition-colors">{s.message}</p>
+                                <p className="text-sm text-text-muted font-medium">{s.action}</p>
                             </div>
                         </div>
                         {s.link && (
@@ -65,9 +70,9 @@ const SmartSuggestions = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => navigate(s.link)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-0 -translate-x-2 text-primary hover:bg-primary/10"
                             >
-                                <ArrowRight className="w-4 h-4" />
+                                <ArrowRight className="w-5 h-5" />
                             </Button>
                         )}
                     </div>

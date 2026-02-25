@@ -17,6 +17,7 @@ import Profile from './modules/profile/Profile';
 import FeaturePipeline from './modules/features/FeaturePipeline';
 import DeveloperInsights from './modules/insights/DeveloperInsights';
 import MockInterview from './modules/interview/MockInterview';
+import StandupGenerator from './modules/standup/StandupGenerator';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -54,6 +55,7 @@ function App() {
                         <Route path="/interview" element={<MockInterview />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/insights" element={<DeveloperInsights />} />
+                        <Route path="/standup" element={<StandupGenerator />} />
                       </Routes>
                     </Layout>
                   </AuthSync>
