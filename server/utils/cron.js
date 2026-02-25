@@ -30,6 +30,9 @@ const initCronJobs = () => {
         }
     });
 
+
+    
+
     // 2. Weekly Review Reminder (Every Sunday at 9 AM)
     cron.schedule('0 9 * * 0', async () => {
         try {

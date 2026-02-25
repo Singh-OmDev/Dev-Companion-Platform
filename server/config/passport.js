@@ -7,7 +7,7 @@ const User = require('../models/User');
 const options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: process.env.JWT_SECRET || 'secret_dev_companion_key'
-};
+}
 
 // JWT Strategy - For protecting API routes
 passport.use(new JwtStrategy(options, async (jwt_payload, done) => {
