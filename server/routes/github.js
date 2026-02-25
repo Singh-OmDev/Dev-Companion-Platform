@@ -102,22 +102,27 @@ router.get('/stats/:username', async (req, res) => {
 });
 
 // @route   GET /api/github/activity/:username
-// @desc    Get mock activity data for graph (Real one requires complex scraping or GraphQL)
-router.get('/activity/:username', (req, res) => {
-    // Generate last 30 days mock activity
-    const activity = [];
-    const today = new Date();
+// @desc    Get real activity events from GitHub API for standup generation
+router.get('/activity/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const options = { headers: { 'User-Agent': 'Dev-Companion-App' } };
 
-    for (let i = 29; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(today.getDate() - i);
-        activity.push({
-            date: d.toISOString().split('T')[0],
-            count: Math.floor(Math.random() * 10) // Random activity 0-10
-        });
+        if (process.env.GITHUB_TOKEN) {
+            options.headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+        } else if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+            options.params = {
+                client_id: process.env.GITHUB_CLIENT_ID,
+                client_secret: process.env.GITHUB_CLIENT_SECRET
+            };
+        }
+
+        const eventsRes = await axios.get(`https://api.github.com/users/${username}/events/public?per_page=30`, options);
+        res.json(eventsRes.data);
+    } catch (err) {
+        console.error("Github Events API Error", err.message);
+        res.status(500).json({ msg: 'Failed to fetch GitHub events' });
     }
-
-    res.json(activity);
 });
 
 // Helper to assign colors to languages
