@@ -227,4 +227,21 @@ router.post('/:id/sync', auth, async (req, res) => {
     }
 });
 
+// @route   DELETE /api/features/:id
+// @desc    Delete a feature
+router.delete('/:id', auth, async (req, res) => {
+    try {
+        const feature = await Feature.findOne({ _id: req.params.id, userId: req.user.id });
+        if (!feature) {
+            return res.status(404).json({ msg: 'Feature not found' });
+        }
+
+        await Feature.findByIdAndDelete(req.params.id);
+        res.json({ msg: 'Feature deleted' });
+    } catch (err) {
+        console.error("Feature Deletion Error:", err);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { Sparkles, Plus, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Plus, Loader2, ArrowRight, CheckCircle2, Trash2 } from 'lucide-react';
 import api from '../../services/api';
 import KanbanBoard from './KanbanBoard';
 
@@ -63,6 +63,23 @@ const FeaturePipeline = () => {
         setSelectedFeature(updatedFeature);
     };
 
+    const handleDeleteFeature = async (featureId, e) => {
+        e.stopPropagation(); // prevent selecting the feature when clicking delete
+        if (!window.confirm("Are you sure you want to delete this feature?")) return;
+
+        try {
+            await api.delete(`/features/${featureId}`);
+            const updatedFeatures = features.filter(f => f._id !== featureId);
+            setFeatures(updatedFeatures);
+            if (selectedFeature && selectedFeature._id === featureId) {
+                setSelectedFeature(updatedFeatures.length > 0 ? updatedFeatures[0] : null);
+            }
+        } catch (err) {
+            console.error("Failed to delete feature", err);
+            alert("Failed to delete feature. Please try again.");
+        }
+    };
+
     return (
         <div className="space-y-8 animate-fade-in relative max-w-7xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
             <div className="flex items-start justify-between">
@@ -121,15 +138,24 @@ const FeaturePipeline = () => {
                                 <button
                                     key={f._id}
                                     onClick={() => setSelectedFeature(f)}
-                                    className={`w-full text-left p-4 rounded-lg border transition-all ${selectedFeature?._id === f._id
-                                            ? 'border-primary bg-primary/10'
-                                            : 'border-border bg-surface hover:border-text-muted'
+                                    className={`group w-full text-left p-4 rounded-lg border transition-all ${selectedFeature?._id === f._id
+                                        ? 'border-primary bg-primary/10'
+                                        : 'border-border bg-surface hover:border-text-muted'
                                         }`}
                                 >
                                     <h4 className="font-bold text-sm truncate">{f.title}</h4>
                                     <div className="flex items-center justify-between mt-2 text-xs text-text-muted">
-                                        <span>{f.tasks?.length || 0} tasks</span>
-                                        {f.status === 'Completed' && <CheckCircle2 className="w-3 h-3 text-success" />}
+                                        <div className="flex text-xs items-center gap-2">
+                                            <span>{f.tasks?.length || 0} tasks</span>
+                                            {f.status === 'Completed' && <CheckCircle2 className="w-3 h-3 text-success" />}
+                                        </div>
+                                        <button
+                                            onClick={(e) => handleDeleteFeature(f._id, e)}
+                                            className="p-1.5 rounded-md hover:bg-danger/20 hover:text-danger text-text-muted transition-colors opacity-0 group-hover:opacity-100"
+                                            title="Delete Feature"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
                                 </button>
                             ))
