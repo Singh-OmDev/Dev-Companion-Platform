@@ -145,7 +145,7 @@ const FeaturePipeline = () => {
                                 <button
                                     key={f._id}
                                     onClick={() => setSelectedFeature(f)}
-                                    className={`group w-full text-left p-4 rounded-lg border transition-all ${selectedFeature?._id === f._id
+                                    className={`group cursor-pointer w-full text-left p-4 rounded-lg border transition-all ${selectedFeature?._id === f._id
                                         ? 'border-primary bg-primary/10'
                                         : 'border-border bg-surface hover:border-text-muted'
                                         }`}
@@ -158,7 +158,7 @@ const FeaturePipeline = () => {
                                         </div>
                                         <button
                                             onClick={(e) => confirmDelete(f._id, e)}
-                                            className="p-1.5 rounded-md hover:bg-danger/20 hover:text-danger text-text-muted transition-colors opacity-0 group-hover:opacity-100"
+                                            className="p-1.5 rounded-md hover:bg-danger/20 hover:text-danger text-text-muted transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                                             title="Delete Feature"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />

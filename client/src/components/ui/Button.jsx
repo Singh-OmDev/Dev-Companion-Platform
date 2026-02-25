@@ -9,7 +9,7 @@ const Button = ({
     className,
     ...props
 }) => {
-    const baseStyles = "inline-flex items-center justify-center font-bold tracking-wide transition-all duration-200 rounded-lg active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
+    const baseStyles = "cursor-pointer inline-flex items-center justify-center font-bold tracking-wide transition-all duration-200 rounded-lg active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
 
     const variants = {
         primary: "bg-primary text-black hover:bg-primary/90 shadow-[0_0_15px_rgba(212,242,63,0.3)] hover:shadow-[0_0_25px_rgba(212,242,63,0.5)]",

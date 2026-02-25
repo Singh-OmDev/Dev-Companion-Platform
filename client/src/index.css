@@ -52,3 +52,7 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-text-muted;
 }
+
+* {
+  cursor: pointer !important;
+}
