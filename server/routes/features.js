@@ -183,22 +183,26 @@ router.post('/:id/sync', auth, async (req, res) => {
             };
         }
 
-        // Fetch recent events
-        const eventsRes = await axios.get(`https://api.github.com/users/${username}/events?per_page=100`, options);
-        const events = eventsRes.data;
+        // Fetch user's recent repos first (up to 5 most recently pushed)
+        const reposRes = await axios.get(`https://api.github.com/users/${username}/repos?sort=updated&per_page=5`, options);
+        const repos = reposRes.data;
+
+        // Extract all commit messages from these recent repos
+        const commitMessages = [];
+        for (const repo of repos) {
+            try {
+                const commitsRes = await axios.get(`https://api.github.com/repos/${username}/${repo.name}/commits?per_page=15`, options);
+                commitsRes.data.forEach(commitObj => {
+                    if (commitObj.commit && commitObj.commit.message) {
+                        commitMessages.push(commitObj.commit.message.toLowerCase());
+                    }
+                });
+            } catch (err) {
+                console.log(`Could not fetch commits for repo ${repo.name}`);
+            }
+        }
 
         let syncedCount = 0;
-        const pushEvents = events.filter(e => e.type === 'PushEvent');
-
-        // Extract all commit messages
-        const commitMessages = [];
-        pushEvents.forEach(event => {
-            if (event.payload && event.payload.commits) {
-                event.payload.commits.forEach(commit => {
-                    commitMessages.push(commit.message.toLowerCase());
-                });
-            }
-        });
 
         // Check if any commit message mentions a taskId
         feature.tasks.forEach(task => {
