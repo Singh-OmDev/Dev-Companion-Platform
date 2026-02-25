@@ -11,6 +11,7 @@ const FeaturePipeline = () => {
     const [generating, setGenerating] = useState(false);
     const [idea, setIdea] = useState('');
     const [selectedFeature, setSelectedFeature] = useState(null);
+    const [featureToDelete, setFeatureToDelete] = useState(null);
 
     const fetchFeatures = async () => {
         try {
@@ -63,20 +64,26 @@ const FeaturePipeline = () => {
         setSelectedFeature(updatedFeature);
     };
 
-    const handleDeleteFeature = async (featureId, e) => {
-        e.stopPropagation(); // prevent selecting the feature when clicking delete
-        if (!window.confirm("Are you sure you want to delete this feature?")) return;
+    const confirmDelete = (featureId, e) => {
+        e.stopPropagation();
+        setFeatureToDelete(featureId);
+    };
+
+    const handleDeleteFeature = async () => {
+        if (!featureToDelete) return;
 
         try {
-            await api.delete(`/features/${featureId}`);
-            const updatedFeatures = features.filter(f => f._id !== featureId);
+            await api.delete(`/features/${featureToDelete}`);
+            const updatedFeatures = features.filter(f => f._id !== featureToDelete);
             setFeatures(updatedFeatures);
-            if (selectedFeature && selectedFeature._id === featureId) {
+            if (selectedFeature && selectedFeature._id === featureToDelete) {
                 setSelectedFeature(updatedFeatures.length > 0 ? updatedFeatures[0] : null);
             }
         } catch (err) {
             console.error("Failed to delete feature", err);
             alert("Failed to delete feature. Please try again.");
+        } finally {
+            setFeatureToDelete(null);
         }
     };
 
@@ -150,7 +157,7 @@ const FeaturePipeline = () => {
                                             {f.status === 'Completed' && <CheckCircle2 className="w-3 h-3 text-success" />}
                                         </div>
                                         <button
-                                            onClick={(e) => handleDeleteFeature(f._id, e)}
+                                            onClick={(e) => confirmDelete(f._id, e)}
                                             className="p-1.5 rounded-md hover:bg-danger/20 hover:text-danger text-text-muted transition-colors opacity-0 group-hover:opacity-100"
                                             title="Delete Feature"
                                         >
@@ -185,6 +192,27 @@ const FeaturePipeline = () => {
                     )}
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {featureToDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+                    <Card className="w-full max-w-sm border-danger/30 bg-surface shadow-2xl">
+                        <h2 className="text-xl font-bold mb-2">Delete Feature?</h2>
+                        <p className="text-text-muted text-sm mb-6">
+                            This will permanently delete this feature and all of its associated tasks. This action cannot be undone.
+                        </p>
+                        <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                            <Button variant="secondary" onClick={() => setFeatureToDelete(null)}>Cancel</Button>
+                            <Button
+                                className="bg-danger hover:bg-danger/90 text-white border-0"
+                                onClick={handleDeleteFeature}
+                            >
+                                Delete Feature
+                            </Button>
+                        </div>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 };
