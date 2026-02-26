@@ -46,19 +46,53 @@ const useDashboardStore = create((set) => ({
             const fetchedProjects = projectsRes.data;
 
             // Optional: Fetch github activity if user has linked it
+            // Optional: Fetch github activity if user has linked it
             let fetchedActivity = [];
+            let fetchedStats = {};
+
             if (profile.socials?.github) {
                 try {
-                    const activityRes = await api.get(`/github/stats/${profile.socials.github}`);
-                    if (activityRes.data?.contributions) {
-                        // mapping to { date, count } matching frontend mock schema approx
-                        fetchedActivity = activityRes.data.contributions.map(c => ({
-                            date: c.day,
-                            count: c.commits || 0
+                    // Try to sync/fetch latest stats from our backend
+                    const statsRes = await api.post('/github/sync');
+                    if (statsRes.data) {
+                        fetchedStats = statsRes.data;
+                    }
+
+                    // Fetch real activity events for the graph
+                    const activityRes = await api.get(`/github/activity/${profile.socials.github}`);
+                    if (activityRes.data && Array.isArray(activityRes.data)) {
+                        // Aggregate events by day for the graph
+                        const activityMap = {};
+                        const today = new Date();
+
+                        // Initialize last 30 days
+                        for (let i = 29; i >= 0; i--) {
+                            const d = new Date(today);
+                            d.setDate(today.getDate() - i);
+                            activityMap[d.toISOString().split('T')[0]] = 0;
+                        }
+
+                        // Count events
+                        activityRes.data.forEach(event => {
+                            if (event.created_at) {
+                                const dateStr = event.created_at.split('T')[0];
+                                if (activityMap[dateStr] !== undefined) {
+                                    if (event.type === 'PushEvent') {
+                                        activityMap[dateStr] += (event.payload?.size || 1);
+                                    } else {
+                                        activityMap[dateStr] += 1;
+                                    }
+                                }
+                            }
+                        });
+
+                        fetchedActivity = Object.keys(activityMap).sort().map(date => ({
+                            date,
+                            count: activityMap[date]
                         }));
                     }
                 } catch (err) {
-                    console.log("Failed to fetch github activity for dashboard graph", err);
+                    console.log("Failed to fetch github data for dashboard", err);
                 }
             }
 
@@ -67,10 +101,10 @@ const useDashboardStore = create((set) => ({
                     ...state.user,
                     ...profile,
                     name: profile.name || profile.username || 'Developer',
-                    streak: profile.stats?.currentStreak || 0
+                    streak: fetchedStats.currentStreak || profile.stats?.currentStreak || 0
                 },
                 stats: {
-                    totalCommits: profile.stats?.totalCommits || 0,
+                    totalCommits: fetchedStats.totalCommits || profile.stats?.totalCommits || 0,
                     leetcodeSolved: profile.stats?.leetcodeSolved?.total || 0,
                     projectsCompleted: fetchedProjects.length || 0,
                     hoursCoded: 0 // Mocked for now

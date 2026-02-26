@@ -117,8 +117,24 @@ router.get('/activity/:username', async (req, res) => {
             };
         }
 
-        const eventsRes = await axios.get(`https://api.github.com/users/${username}/events/public?per_page=30`, options);
-        res.json(eventsRes.data);
+        // Fetch up to 300 events (3 pages of 100) to get a better 30-day spread
+        const pages = [1, 2, 3];
+        const eventPromises = pages.map(page =>
+            axios.get(`https://api.github.com/users/${username}/events/public?per_page=100&page=${page}`, options).catch(() => ({ data: [] }))
+        );
+
+        const results = await Promise.all(eventPromises);
+        let allEvents = [];
+        results.forEach(response => {
+            if (response.data && Array.isArray(response.data)) {
+                allEvents = allEvents.concat(response.data);
+            }
+        });
+
+        // Dedup just in case (though GitHub API handles pagination cleanly)
+        const uniqueEvents = Array.from(new Map(allEvents.map(e => [e.id, e])).values());
+
+        res.json(uniqueEvents);
     } catch (err) {
         console.error("Github Events API Error", err.message);
         res.status(500).json({ msg: 'Failed to fetch GitHub events' });

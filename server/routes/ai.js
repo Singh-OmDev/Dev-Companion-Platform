@@ -3,6 +3,7 @@ const router = express.Router();
 const Groq = require('groq-sdk');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
+const axios = require('axios');
 const auth = require('../middleware/auth');
 
 // Initialize Groq
@@ -377,6 +378,85 @@ router.post('/interview/answer', auth, async (req, res) => {
     } catch (err) {
         console.error("Interview Answer Error:", err);
         res.status(500).send('Server Error grading answer');
+    }
+});
+
+// @route   POST /api/ai/generate-docs
+// @desc    Generate AI documentation for a specific repository path
+router.post('/generate-docs', auth, async (req, res) => {
+    try {
+        const { owner, repo, branch = 'main', path } = req.body;
+
+        if (!owner || !repo) {
+            return res.status(400).json({ msg: "Missing required parameters (owner, repo)" });
+        }
+
+        const getGithubHeaders = () => {
+            const headers = {
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'Dev-Companion-App'
+            };
+            if (process.env.GITHUB_TOKEN) {
+                headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+            }
+            return headers;
+        };
+
+        // 1. Fetch the recursive tree from GitHub to understand the structure of the specific path
+        const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`;
+        const response = await axios.get(treeUrl, {
+            headers: getGithubHeaders()
+        });
+
+        const tree = response.data.tree;
+
+        if (!tree || tree.length === 0) {
+            return res.status(400).json({ msg: "Repository appears to be empty or nonexistent." });
+        }
+
+        // 2. Filter the tree to ONLY include files that are WITHIN the requested path
+        const targetPath = path === 'root' ? '' : path + '/';
+        const filesInPath = tree
+            .filter(item => item.type === 'blob') // Files only
+            .filter(item => path === 'root' || item.path.startsWith(targetPath))
+            .map(item => item.path.replace(targetPath, '')) // Get relative paths
+            .slice(0, 50); // Limit to 50 files to avoid massive prompts
+
+        if (filesInPath.length === 0) {
+            return res.status(400).json({ msg: "No files found in the specified path." });
+        }
+
+        // 3. Construct the prompt for Groq
+        const prompt = `You are an expert Technical Writer and Senior Staff Engineer.
+I need you to write a comprehensive \`README.md\` documentation file for a specific module of a codebase.
+
+Module Path: \`${path === 'root' ? '/' : path}\`
+Repository: \`${owner}/${repo}\`
+
+Here are the files contained within this module:
+${filesInPath.map(f => `- ${f}`).join('\n')}
+
+Based ONLY on these file names and paths, generate a well-structured Markdown document explaining:
+1. Try to deduce what this module's primary purpose is in the broader application.
+2. An overview of the key files and what role they likely play.
+3. How this module fits into standard architectural patterns (e.g., if it has 'controllers' and 'routes', it's an API layer).
+
+Format the output entirely in clean, readable Markdown. Include headers, lists, and bold text where appropriate.
+DO NOT include any conversational filler like "Here is the documentation". Return ONLY the raw Markdown content.`;
+
+        // 4. Generate the content
+        let markdownDocs = await generateContent(prompt);
+
+        // Strip markdown code block wrappers if Groq accidentally includes them for the whole response
+        if (markdownDocs.startsWith('\`\`\`markdown')) {
+            markdownDocs = markdownDocs.replace(/^\`\`\`markdown/, '').replace(/\`\`\`$/, '').trim();
+        }
+
+        res.json({ success: true, markdown: markdownDocs });
+
+    } catch (err) {
+        console.error("Generate Docs Error:", err.response?.data || err.message);
+        res.status(500).json({ msg: "Failed to generate AI documentation." });
     }
 });
 

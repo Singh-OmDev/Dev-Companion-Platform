@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { GitBranch, Github, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
+import { GitBranch, Github, Sparkles, AlertCircle, RefreshCw, FileText, X, Copy, CheckCircle2 } from 'lucide-react';
 import api from '../../services/api';
 import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, MarkerType, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -79,6 +79,13 @@ const Cartographer = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
+    // States for AI Documentation
+    const [selectedNodeData, setSelectedNodeData] = useState(null);
+    const [isGeneratingDocs, setIsGeneratingDocs] = useState(false);
+    const [generatedDocs, setGeneratedDocs] = useState(null);
+    const [showDocsPanel, setShowDocsPanel] = useState(false);
+    const [copied, setCopied] = useState(false);
+
     useEffect(() => {
         fetchRepos();
     }, []);
@@ -107,6 +114,9 @@ const Cartographer = () => {
         setError('');
         setNodes([]);
         setEdges([]);
+        setSelectedNodeData(null);
+        setShowDocsPanel(false);
+        setGeneratedDocs(null);
 
         const repoData = repos.find(r => r.full_name === selectedRepo);
         if (!repoData) return;
@@ -199,6 +209,43 @@ const Cartographer = () => {
         }
     };
 
+    const handleNodeClick = async (event, node) => {
+        const repoData = repos.find(r => r.full_name === selectedRepo);
+        if (!repoData) return;
+
+        setSelectedNodeData({
+            id: node.id,
+            label: node.data.label,
+            type: node.data.type
+        });
+        setShowDocsPanel(true);
+        setIsGeneratingDocs(true);
+        setGeneratedDocs(null);
+
+        try {
+            const res = await api.post('/ai/generate-docs', {
+                owner: repoData.owner,
+                repo: repoData.name,
+                branch: repoData.default_branch || 'main',
+                path: node.id // Assuming node.id is the full path
+            });
+            setGeneratedDocs(res.data.markdown);
+        } catch (err) {
+            console.error("Failed to generate docs", err);
+            setGeneratedDocs("⚠️ Failed to generate documentation. " + (err.response?.data?.msg || err.message));
+        } finally {
+            setIsGeneratingDocs(false);
+        }
+    };
+
+    const handleCopyDocs = () => {
+        if (generatedDocs) {
+            navigator.clipboard.writeText(generatedDocs);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
     return (
         <div className="space-y-6 animate-fade-in max-w-7xl mx-auto h-[calc(100vh-4rem)] flex flex-col pb-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 shrink-0">
@@ -263,6 +310,7 @@ const Cartographer = () => {
                         nodeTypes={nodeTypes}
                         onNodesChange={onNodesChange}
                         onEdgesChange={onEdgesChange}
+                        onNodeClick={handleNodeClick}
                         fitView
                         fitViewOptions={{ padding: 0.2, minZoom: 0.5, maxZoom: 1.5 }}
                         className="bg-transparent"
@@ -287,6 +335,73 @@ const Cartographer = () => {
                     </div>
                 )}
             </Card>
+
+            {/* AI Documentation Side Panel */}
+            <div className={`fixed top-0 right-0 h-full w-full sm:w-[500px] bg-surfaceHighlight/95 backdrop-blur-xl border-l border-border/50 shadow-2xl transition-transform duration-300 ease-in-out z-50 flex flex-col ${showDocsPanel ? 'translate-x-0' : 'translate-x-full'}`}>
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b border-border/50 bg-surface/50">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/20 rounded-lg">
+                            <FileText className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-bold text-white">AI Module Insight</h2>
+                            <p className="text-sm text-textSecondary font-mono">{selectedNodeData?.label}</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setShowDocsPanel(false)}
+                        className="p-2 hover:bg-white/10 rounded-full transition-colors text-textSecondary hover:text-white"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">
+                    {isGeneratingDocs ? (
+                        <div className="h-full flex flex-col items-center justify-center text-center space-y-4 animate-pulse">
+                            <Sparkles className="w-12 h-12 text-primary/50 mb-2" />
+                            <h3 className="text-xl font-semibold text-white">Generating Documentation...</h3>
+                            <p className="text-sm text-textSecondary max-w-[250px]">
+                                Reading files in <span className="text-primary">{selectedNodeData?.label}</span> to understand their purpose and architecture.
+                            </p>
+                            <div className="w-48 h-1 bg-surfaceHighlight rounded-full overflow-hidden mt-6">
+                                <div className="h-full bg-primary animate-[translate-x_1.5s_infinite]"></div>
+                            </div>
+                        </div>
+                    ) : generatedDocs ? (
+                        <div className="space-y-4 animate-fade-in-up">
+                            <div className="prose prose-invert prose-emerald max-w-none">
+                                {/* Simple text render to avoid adding more complex markdown library dependencies if not available. */}
+                                <pre className="font-sans text-sm text-text bg-transparent whitespace-pre-wrap">{generatedDocs}</pre>
+                            </div>
+                        </div>
+                    ) : null}
+                </div>
+
+                {/* Footer Action */}
+                {!isGeneratingDocs && generatedDocs && (
+                    <div className="p-6 border-t border-border/50 bg-surface/50">
+                        <Button
+                            variant={copied ? "primary" : "secondary"}
+                            className="w-full flex items-center justify-center gap-2"
+                            onClick={handleCopyDocs}
+                        >
+                            {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            {copied ? 'Copied to Clipboard!' : 'Copy Markdown'}
+                        </Button>
+                    </div>
+                )}
+            </div>
+
+            {/* Backdrop for mobile */}
+            {showDocsPanel && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 sm:hidden block backdrop-blur-sm"
+                    onClick={() => setShowDocsPanel(false)}
+                />
+            )}
         </div>
     );
 };
