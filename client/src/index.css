@@ -142,15 +142,17 @@
 }
 
 .glitch::before {
-  left: 2px;
-  text-shadow: -1px 0 rgba(255, 0, 0, 0.8);
+  left: 3px;
+  text-shadow: -2px 0 rgba(212, 242, 63, 0.8);
+  color: #D4F23F;
   animation: glitch-anim-1 2s infinite linear alternate-reverse;
   opacity: 0;
 }
 
 .glitch::after {
-  left: -2px;
-  text-shadow: -1px 0 rgba(0, 255, 255, 0.8);
+  left: -3px;
+  text-shadow: 2px 0 rgba(212, 242, 63, 0.4);
+  color: #D4F23F;
   animation: glitch-anim-2 3s infinite linear alternate-reverse;
   opacity: 0;
 }

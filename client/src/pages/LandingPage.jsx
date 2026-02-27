@@ -45,10 +45,12 @@ const InteractiveTerminal = () => {
         "DEV_OS Kernel v2.4.0 initialized.",
         "Type 'help' for available commands or 'init' to start."
     ]);
-    const bottomRef = useRef(null);
+    const scrollContainerRef = useRef(null);
 
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
     }, [output]);
 
     const handleCommand = (e) => {
@@ -87,7 +89,10 @@ const InteractiveTerminal = () => {
                 <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
                 <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
             </div>
-            <div className="h-48 overflow-y-auto custom-scrollbar flex flex-col gap-1 text-[#00ff00]">
+            <div
+                ref={scrollContainerRef}
+                className="h-48 overflow-y-auto custom-scrollbar flex flex-col gap-1 text-[#00ff00]"
+            >
                 {output.map((line, i) => (
                     <div key={i} className={`${line.startsWith('>') ? 'text-white' : 'opacity-80'}`}>{line}</div>
                 ))}
@@ -99,12 +104,10 @@ const InteractiveTerminal = () => {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleCommand}
                         className="bg-transparent border-none outline-none w-full text-white"
-                        autoFocus
                         spellCheck="false"
                         onMouseEnter={() => playBeep('hover')}
                     />
                 </div>
-                <div ref={bottomRef} />
             </div>
         </div>
     );
@@ -237,7 +240,12 @@ const LandingPage = () => {
     };
 
     return (
-        <div className="bg-[#020202] text-[#EBEBEB] font-sans selection:bg-[#D4F23F] selection:text-black overflow-x-hidden w-full relative">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="bg-[#020202] text-[#EBEBEB] font-sans selection:bg-[#D4F23F] selection:text-black overflow-x-hidden w-full relative"
+        >
 
             {/* Subtle Gradient Overlay mimicking 3D environment lighting - Fixed Position */}
             <div className="fixed inset-0 z-0 pointer-events-none opacity-10 mix-blend-screen"
@@ -304,14 +312,22 @@ const LandingPage = () => {
                     </button>
                 </div>
                 <div className="w-full md:w-1/3 flex justify-center pt-2 pointer-events-auto">
-                    <div
+                    <motion.div
                         className="flex items-center gap-2 group cursor-pointer"
                         onClick={() => { playBeep('click'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                         onMouseEnter={() => { setIsHovering(true); playBeep('hover'); }}
                         onMouseLeave={() => setIsHovering(false)}
+                        animate={{
+                            rotate: [0, 360],
+                            scale: [1, 1.1, 1]
+                        }}
+                        transition={{
+                            rotate: { duration: 12, repeat: Infinity, ease: "linear" },
+                            scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                        }}
                     >
                         <Layers className="w-8 h-8 text-white group-hover:text-[#D4F23F] transition-colors duration-500" strokeWidth={2.5} />
-                    </div>
+                    </motion.div>
                 </div>
                 <div className="w-full md:w-1/3 flex justify-end gap-6 md:pr-12 pt-12 pointer-events-auto">
                     <SignInButton mode="modal">
@@ -520,7 +536,7 @@ const LandingPage = () => {
             {/* Blank padding at the bottom so the final CTA scroll completely clears the HUD footer */}
             <div className="h-32 w-full bg-[#020202] relative z-20"></div>
 
-        </div>
+        </motion.div>
     );
 };
 
