@@ -3,6 +3,7 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 const axios = require('axios');
 const User = require('../models/User');
+const { getGithubToken } = require('../utils/githubToken');
 
 // Auth middleware replaced
 
@@ -169,27 +170,42 @@ function getLanguageColor(language) {
 router.post('/sync', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-        if (!user || !user.socials || !user.socials.github) {
-            return res.status(400).json({ msg: 'Github account not linked' });
+        const githubToken = await getGithubToken(req.auth.userId);
+
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
         }
 
-        let username = user.socials.github;
+        let username = user.socials?.github;
 
-        // Extract username if full URL provided
-        if (username.includes('github.com')) {
-            const parts = username.split('/').filter(Boolean);
-            username = parts[parts.length - 1];
+        if (!username && !githubToken) {
+            return res.status(400).json({ msg: 'Github account not linked and no OAuth token found' });
         }
-        username = username.trim(); // Ensure no trailing spaces
+
         const options = { headers: { 'User-Agent': 'Dev-Companion-App' } };
 
-        if (process.env.GITHUB_TOKEN) {
+        if (githubToken) {
+            options.headers['Authorization'] = `Bearer ${githubToken}`;
+        } else if (process.env.GITHUB_TOKEN) {
             options.headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
-        } else if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
-            options.params = {
-                client_id: process.env.GITHUB_CLIENT_ID,
-                client_secret: process.env.GITHUB_CLIENT_SECRET
-            };
+        }
+
+        // If no manually provided username, fetch it dynamically from the authenticated token
+        if (!username) {
+            const userRes = await axios.get('https://api.github.com/user', options);
+            username = userRes.data.login;
+
+            // Optionally, save it back to their profile so we don't have to fetch it every time
+            if (!user.socials) user.socials = {};
+            user.socials.github = username;
+            await user.save();
+        } else {
+            // Extract username if full URL provided manually
+            if (username.includes('github.com')) {
+                const parts = username.split('/').filter(Boolean);
+                username = parts[parts.length - 1];
+            }
+            username = username.trim();
         }
 
         const [reposRes, eventsRes] = await Promise.all([

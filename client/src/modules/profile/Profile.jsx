@@ -24,8 +24,9 @@ const Profile = () => {
                 redirectUrl: window.location.href,
             });
             console.log("Create External Account Response:", res);
+
             if (res && res.verification && res.verification.status !== 'verified') {
-                const redirectUrl = res.verification.externalVerificationRedirectURL?.href;
+                const redirectUrl = res.verification.externalVerificationRedirectURL?.toString();
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
                 } else {
@@ -35,17 +36,31 @@ const Profile = () => {
                 alert("Account is already verified and connected!");
             }
         } catch (error) {
-            console.error("Failed to connect GitHub", error);
-            alert(`Failed to connect GitHub: ${error.message || JSON.stringify(error)}`);
+            const errorMsg = error.errors?.[0]?.message || error.message || "";
+            if (
+                error.errors?.[0]?.code === 'session_reverification_required' ||
+                error.errors?.[0]?.code === 'reverification_required' ||
+                errorMsg.includes('Reverification') ||
+                errorMsg.includes('additional verification')
+            ) {
+                alert("Security Check: Your session has been active for a while. To link a new high-privilege account like GitHub, please sign out of the app, sign back in, and click Connect GitHub again.");
+            } else if (
+                error.errors?.[0]?.code === 'external_account_exists' ||
+                errorMsg.includes('Another account is already connected') ||
+                errorMsg.includes('already connected for this particular provider')
+            ) {
+                alert("GitHub is already connected to your account! Try refreshing the page or clicking the 'Sync GitHub Stats' button.");
+            } else {
+                console.error("Failed to connect GitHub", error);
+                alert(`Failed to connect GitHub: ${errorMsg || JSON.stringify(error)}`);
+            }
         }
     };
 
     const handleSync = useCallback(async () => {
         // user check inside callback to avoid dependency on specific user properties if possible, 
-        // but here we need user.socials.github.
-        // If we include 'user' in dependency, it might change too often.
-        // let's rely on user object stability or just properties needed.
-        if (!user?.socials?.github) return;
+        // but here we need user.socials.github or Clerk connection.
+        if (!user?.socials?.github && !isGithubConnected) return;
         setSyncing(true);
         try {
             await api.post('/github/sync');
@@ -55,14 +70,14 @@ const Profile = () => {
         } finally {
             setSyncing(false);
         }
-    }, [user?.socials?.github, fetchDashboardData]);
+    }, [user?.socials?.github, isGithubConnected, fetchDashboardData]);
 
     // Auto-sync if github connected but no stats
     useEffect(() => {
-        if (user?.socials?.github && (!user?.stats?.totalRepos || user?.stats?.totalRepos === 0)) {
+        if ((user?.socials?.github || isGithubConnected) && (!user?.stats?.totalRepos || user?.stats?.totalRepos === 0)) {
             handleSync();
         }
-    }, [handleSync, user?.socials?.github, user?.stats?.totalRepos]); // Run once on mount if condition met
+    }, [handleSync, user?.socials?.github, isGithubConnected, user?.stats?.totalRepos]); // Run once on mount if condition met
 
     // Form State
     const [formData, setFormData] = useState({
@@ -100,8 +115,8 @@ const Profile = () => {
 
             await fetchDashboardData(); // Refresh global store
 
-            // Sync GitHub Stats if username provided
-            if (updateData.socials.github) {
+            // Sync GitHub Stats if username provided or clerk connected
+            if (updateData.socials.github || isGithubConnected) {
                 await api.post('/github/sync').catch(err => console.error("Sync failed", err));
                 await fetchDashboardData(); // Refetch to get updated stats
             }
@@ -167,7 +182,7 @@ const Profile = () => {
                         <h3 className="text-lg font-black tracking-tighter uppercase mb-4 flex items-center gap-2">
                             <Briefcase className="w-5 h-5 text-[#D4F23F]" />
                             Career Stats
-                            {user?.socials?.github && (
+                            {(user?.socials?.github || isGithubConnected) && (
                                 <button
                                     onClick={handleSync}
                                     className={`ml-auto p-1 rounded-full hover:bg-surfaceHighlight transition-all ${syncing ? 'animate-spin' : ''}`}
@@ -215,6 +230,7 @@ const Profile = () => {
                                         <span className="text-xs font-mono uppercase font-black tracking-wider">Connect GitHub</span>
                                     </button>
                                 )}
+                                <SocialInput icon={Github} name="github" value={formData.github} onChange={handleChange} placeholder="GitHub URL or Username" />
                                 <SocialInput icon={Linkedin} name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="LinkedIn URL" />
                                 <SocialInput icon={Twitter} name="twitter" value={formData.twitter} onChange={handleChange} placeholder="Twitter URL" />
                                 <SocialInput icon={Globe} name="website" value={formData.website} onChange={handleChange} placeholder="Portfolio URL" />
@@ -264,7 +280,7 @@ const Profile = () => {
                                     name="skills"
                                     value={formData.skills}
                                     onChange={handleChange}
-                                    className="w-full bg-[#020202] border border-white/10 p-3 text-white mb-2 focus:outline-none focus:border-[#D4F23F] font-mono text-sm"
+                                    className="w-full bg-[#020202] border border-white/10 p-3 text-white placeholder-white/20 mb-2 focus:outline-none focus:border-[#D4F23F] font-mono text-sm"
                                     placeholder="React, Node.js, Python (comma separated)"
                                 />
                                 <p className="text-[10px] text-white/40 font-mono uppercase">Separate skills with commas</p>
@@ -298,7 +314,7 @@ const SocialInput = ({ icon: Icon, name, value, onChange, placeholder }) => (
             name={name}
             value={value}
             onChange={onChange}
-            className="bg-transparent border-none focus:outline-none text-xs font-mono w-full text-white"
+            className="bg-transparent border-none focus:outline-none text-xs font-mono w-full text-white placeholder-white/20"
             placeholder={placeholder}
         />
     </div>
