@@ -92,30 +92,28 @@ const GithubStats = () => {
     return (
         <div className="space-y-8 animate-fade-in">
             {/* Header Profile */}
-            <div className="flex flex-col md:flex-row items-center gap-8 bg-surface border border-border p-8 rounded-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
-
+            <div className="flex flex-col md:flex-row items-center gap-8 bg-[#020202] border border-white/10 p-8 relative overflow-hidden">
                 <img
                     src={user?.avatar_url || "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"}
                     alt="Profile"
-                    className="w-32 h-32 rounded-full border-4 border-surfaceHighlight shadow-2xl"
+                    className="w-32 h-32 border-4 border-white/10 grayscale hover:grayscale-0 transition-all duration-500"
                 />
 
                 <div className="flex-1 text-center md:text-left relative z-10">
-                    <h1 className="text-3xl font-bold flex items-center justify-center md:justify-start gap-3">
+                    <h1 className="text-3xl font-black tracking-tighter uppercase flex items-center justify-center md:justify-start gap-3">
                         {user?.name || user?.login}
                         <Badge variant="primary">Pro</Badge>
                     </h1>
-                    <p className="text-text-muted mt-2 max-w-xl">{user?.bio || "Full Stack Developer building the future of web."}</p>
+                    <p className="text-white/50 font-mono text-xs mt-2 max-w-xl uppercase">{user?.bio || "Full Stack Developer building the future of web."}</p>
 
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4 text-sm text-text-muted">
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-6 text-xs font-mono text-white/40 uppercase">
                         {user?.location && (
-                            <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {user.location}</span>
+                            <span className="flex items-center gap-1"><MapPin className="w-4 h-4 text-[#D4F23F]" /> {user.location}</span>
                         )}
                         {user?.blog && (
-                            <span className="flex items-center gap-1"><LinkIcon className="w-4 h-4" /> {user.blog}</span>
+                            <span className="flex items-center gap-1"><LinkIcon className="w-4 h-4 text-[#D4F23F]" /> {user.blog}</span>
                         )}
-                        <span className="flex items-center gap-1"><Github className="w-4 h-4" /> @{user?.login}</span>
+                        <span className="flex items-center gap-1"><Github className="w-4 h-4 text-[#D4F23F]" /> @{user?.login}</span>
                     </div>
                 </div>
 
@@ -139,20 +137,20 @@ const GithubStats = () => {
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card className="flex flex-col items-center justify-center py-8">
-                    <span className="text-4xl font-bold">{user?.public_repos}</span>
-                    <span className="text-text-muted text-sm mt-1">Repositories</span>
+                    <span className="text-5xl font-black font-sans tracking-tighter text-[#D4F23F]">{user?.public_repos}</span>
+                    <span className="text-white/40 text-[10px] font-mono uppercase tracking-widest mt-2">Repositories</span>
                 </Card>
                 <Card className="flex flex-col items-center justify-center py-8">
-                    <span className="text-4xl font-bold">{user?.followers}</span>
-                    <span className="text-text-muted text-sm mt-1">Followers</span>
+                    <span className="text-5xl font-black font-sans tracking-tighter text-[#D4F23F]">{user?.followers}</span>
+                    <span className="text-white/40 text-[10px] font-mono uppercase tracking-widest mt-2">Followers</span>
                 </Card>
                 <Card className="flex flex-col items-center justify-center py-8">
-                    <span className="text-4xl font-bold">{user?.following}</span>
-                    <span className="text-text-muted text-sm mt-1">Following</span>
+                    <span className="text-5xl font-black font-sans tracking-tighter text-[#D4F23F]">{user?.following}</span>
+                    <span className="text-white/40 text-[10px] font-mono uppercase tracking-widest mt-2">Following</span>
                 </Card>
                 <Card className="flex flex-col items-center justify-center py-8">
-                    <span className="text-4xl font-bold">{user?.created_at ? new Date(user.created_at).getFullYear() : '2024'}</span>
-                    <span className="text-text-muted text-sm mt-1">Joined Year</span>
+                    <span className="text-5xl font-black font-sans tracking-tighter text-[#D4F23F]">{user?.created_at ? new Date(user.created_at).getFullYear() : '2024'}</span>
+                    <span className="text-white/40 text-[10px] font-mono uppercase tracking-widest mt-2">Joined Year</span>
                 </Card>
             </div>
 
@@ -180,7 +178,7 @@ const GithubStats = () => {
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#0F0F0F', borderColor: '#2A2A2A', borderRadius: '8px' }}
+                                    contentStyle={{ backgroundColor: '#020202', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '0', fontFamily: 'monospace' }}
                                     itemStyle={{ color: '#E5E5E5' }}
                                 />
                             </PieChart>
@@ -199,7 +197,7 @@ const GithubStats = () => {
                 {/* Recent Activity */}
                 <Card>
                     <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <GitBranch className="w-5 h-5 text-primary" /> Contribution Activity
+                        <GitBranch className="w-5 h-5 text-[#D4F23F]" /> Contribution Activity
                     </h3>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -208,14 +206,14 @@ const GithubStats = () => {
                                 <YAxis hide />
                                 <Tooltip
                                     cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                                    contentStyle={{ backgroundColor: '#0F0F0F', borderColor: '#2A2A2A', borderRadius: '8px' }}
+                                    contentStyle={{ backgroundColor: '#020202', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '0', fontFamily: 'monospace' }}
                                     itemStyle={{ color: '#D4F23F' }}
                                 />
-                                <Bar dataKey="commits" fill="#D4F23F" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="commits" fill="#D4F23F" radius={[0, 0, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                    <p className="text-center text-sm text-text-muted mt-4">Last 14 Days of Activity</p>
+                    <p className="text-center text-[10px] font-mono text-white/40 uppercase mt-4">Last 14 Days of Activity</p>
                 </Card>
             </div>
         </div>

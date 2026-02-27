@@ -9,13 +9,13 @@ const Button = ({
     className,
     ...props
 }) => {
-    const baseStyles = "cursor-pointer inline-flex items-center justify-center font-bold tracking-wide transition-all duration-200 rounded-lg active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
+    const baseStyles = "cursor-pointer inline-flex items-center justify-center font-black uppercase tracking-wider transition-all duration-200 active:translate-y-0 active:translate-x-0 active:shadow-none disabled:opacity-50 disabled:pointer-events-none relative group";
 
     const variants = {
-        primary: "bg-primary text-black hover:bg-primary/90 shadow-[0_0_15px_rgba(212,242,63,0.3)] hover:shadow-[0_0_25px_rgba(212,242,63,0.5)]",
-        secondary: "bg-surfaceHighlight text-text hover:bg-surfaceHighlight/80 border border-border",
-        ghost: "bg-transparent text-text-muted hover:text-text hover:bg-white/5",
-        danger: "bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
+        primary: "bg-[#D4F23F] text-black border-2 border-[#D4F23F] hover:shadow-[-4px_4px_0px_rgba(255,255,255,0.2)] hover:-translate-y-1 hover:translate-x-1",
+        secondary: "bg-transparent text-white border-2 border-white/20 hover:border-white hover:shadow-[-4px_4px_0px_rgba(212,242,63,1)] hover:-translate-y-1 hover:translate-x-1 hover:text-[#D4F23F]",
+        ghost: "bg-transparent text-white/50 hover:text-[#D4F23F] hover:bg-white/5 border-b-2 border-transparent hover:border-[#D4F23F]",
+        danger: "bg-red-500/10 text-red-500 border-2 border-red-500/20 hover:bg-red-500 hover:text-white hover:shadow-[-4px_4px_0px_rgba(255,255,255,0.2)] hover:-translate-y-1 hover:translate-x-1"
     };
 
     const sizes = {

@@ -96,19 +96,19 @@ const Profile = () => {
         <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
             {/* Header Section */}
             <div className="relative mb-12">
-                <div className="h-48 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl border border-border/50 backdrop-blur-sm"></div>
+                <div className="h-48 bg-[#0a0a0a] border border-white/10"></div>
                 <div className="absolute -bottom-12 left-8 flex items-end gap-6">
                     <div className="relative group">
-                        <div className="w-32 h-32 rounded-full border-4 border-surface bg-surfaceHighlight overflow-hidden shadow-2xl">
-                            <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
+                        <div className="w-32 h-32 border-4 border-[#020202] bg-white/5 overflow-hidden">
+                            <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover grayscale" />
                         </div>
-                        <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
-                            <User className="w-8 h-8 text-white" />
+                        <div className="absolute inset-0 bg-[#D4F23F] opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer text-black">
+                            <User className="w-8 h-8" />
                         </div>
                     </div>
                     <div className="mb-2">
-                        <h1 className="text-3xl font-bold">{user.name || user.username}</h1>
-                        <p className="text-primary font-medium flex items-center gap-2">
+                        <h1 className="text-3xl font-black tracking-tighter uppercase">{user.name || user.username}</h1>
+                        <p className="text-[#D4F23F] font-mono text-xs uppercase flex items-center gap-2">
                             <Terminal className="w-4 h-4" />
                             {user.title || 'Full Stack Developer'}
                         </p>
@@ -135,9 +135,9 @@ const Profile = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-12">
                 {/* Left Column: Stats & Socials */}
                 <div className="space-y-6">
-                    <Card className="border-primary/20 bg-surface/50 backdrop-blur-md">
-                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <Briefcase className="w-5 h-5 text-primary" />
+                    <Card className="p-6">
+                        <h3 className="text-lg font-black tracking-tighter uppercase mb-4 flex items-center gap-2">
+                            <Briefcase className="w-5 h-5 text-[#D4F23F]" />
                             Career Stats
                             {user?.socials?.github && (
                                 <button
@@ -149,25 +149,25 @@ const Profile = () => {
                                 </button>
                             )}
                         </h3>
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center p-3 bg-surfaceHighlight/50 rounded-lg">
-                                <span className="text-text-muted">Repositories</span>
-                                <span className="font-mono font-bold text-lg">{user.stats?.totalRepos || 0}</span>
+                        <div className="space-y-4 font-mono text-xs uppercase">
+                            <div className="flex justify-between items-center p-3 border border-white/10 bg-white/5">
+                                <span className="text-white/50">Repositories</span>
+                                <span className="font-bold text-sm text-[#D4F23F]">{user.stats?.totalRepos || 0}</span>
                             </div>
-                            <div className="flex justify-between items-center p-3 bg-surfaceHighlight/50 rounded-lg">
-                                <span className="text-text-muted">Commits</span>
-                                <span className="font-mono font-bold text-lg">{user.stats?.totalCommits || 0}</span>
+                            <div className="flex justify-between items-center p-3 border border-white/10 bg-white/5">
+                                <span className="text-white/50">Commits</span>
+                                <span className="font-bold text-sm text-[#D4F23F]">{user.stats?.totalCommits || 0}</span>
                             </div>
-                            <div className="flex justify-between items-center p-3 bg-surfaceHighlight/50 rounded-lg">
-                                <span className="text-text-muted">Streak</span>
-                                <span className="font-mono font-bold text-lg text-primary">{user.stats?.currentStreak || 0} days</span>
+                            <div className="flex justify-between items-center p-3 border border-white/10 bg-white/5">
+                                <span className="text-white/50">Streak</span>
+                                <span className="font-bold text-sm text-[#D4F23F]">{user.stats?.currentStreak || 0} days</span>
                             </div>
                         </div>
                     </Card>
 
-                    <Card>
-                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <LinkIcon className="w-5 h-5 text-primary" />
+                    <Card className="p-6">
+                        <h3 className="text-lg font-black tracking-tighter uppercase mb-4 flex items-center gap-2">
+                            <LinkIcon className="w-5 h-5 text-[#D4F23F]" />
                             Connect
                         </h3>
                         {isEditing ? (
@@ -190,9 +190,9 @@ const Profile = () => {
 
                 {/* Right Column: Bio & Skills */}
                 <div className="lg:col-span-2 space-y-6">
-                    <Card className="min-h-[200px]">
-                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <User className="w-5 h-5 text-primary" />
+                    <Card className="min-h-[200px] p-6">
+                        <h3 className="text-lg font-black tracking-tighter uppercase mb-4 flex items-center gap-2">
+                            <User className="w-5 h-5 text-[#D4F23F]" />
                             About Me
                         </h3>
                         {isEditing ? (
@@ -200,19 +200,19 @@ const Profile = () => {
                                 name="bio"
                                 value={formData.bio}
                                 onChange={handleChange}
-                                className="w-full h-32 bg-surfaceHighlight border border-border rounded-lg p-3 text-text focus:outline-none focus:border-primary transition-colors resize-none"
+                                className="w-full h-32 bg-[#020202] border border-white/10 p-3 text-white focus:outline-none focus:border-[#D4F23F] transition-colors resize-none font-mono text-sm"
                                 placeholder="Tell us about your coding journey..."
                             />
                         ) : (
-                            <p className="text-text-muted leading-relaxed whitespace-pre-wrap">
+                            <p className="text-white/60 leading-relaxed whitespace-pre-wrap font-mono text-sm">
                                 {user.bio || "No bio added yet. Click 'Edit Profile' to introduce yourself!"}
                             </p>
                         )}
                     </Card>
 
-                    <Card>
-                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <Code className="w-5 h-5 text-primary" />
+                    <Card className="p-6">
+                        <h3 className="text-lg font-black tracking-tighter uppercase mb-4 flex items-center gap-2">
+                            <Code className="w-5 h-5 text-[#D4F23F]" />
                             Skills & Stack
                         </h3>
                         {isEditing ? (
@@ -222,21 +222,21 @@ const Profile = () => {
                                     name="skills"
                                     value={formData.skills}
                                     onChange={handleChange}
-                                    className="w-full bg-surfaceHighlight border border-border rounded-lg p-3 text-text mb-2 focus:outline-none focus:border-primary"
+                                    className="w-full bg-[#020202] border border-white/10 p-3 text-white mb-2 focus:outline-none focus:border-[#D4F23F] font-mono text-sm"
                                     placeholder="React, Node.js, Python (comma separated)"
                                 />
-                                <p className="text-xs text-text-muted">Separate skills with commas</p>
+                                <p className="text-[10px] text-white/40 font-mono uppercase">Separate skills with commas</p>
                             </div>
                         ) : (
                             <div className="flex flex-wrap gap-2">
                                 {user.skills && user.skills.length > 0 ? (
                                     user.skills.map((skill, index) => (
-                                        <Badge key={index} variant="secondary" className="px-3 py-1 text-sm bg-surfaceHighlight hover:bg-surfaceHighlight/80 transition-colors cursor-default">
+                                        <Badge key={index} variant="default" className="text-white/70">
                                             {skill}
                                         </Badge>
                                     ))
                                 ) : (
-                                    <p className="text-text-muted italic">No skills listed.</p>
+                                    <p className="text-white/40 italic font-mono text-xs">No skills listed.</p>
                                 )}
                             </div>
                         )}
@@ -249,14 +249,14 @@ const Profile = () => {
 
 // Helper Components
 const SocialInput = ({ icon: Icon, name, value, onChange, placeholder }) => (
-    <div className="flex items-center gap-2 bg-surfaceHighlight p-2 rounded border border-border focus-within:border-primary transition-colors">
-        <Icon className="w-4 h-4 text-text-muted" />
+    <div className="flex items-center gap-2 bg-[#020202] p-2 border border-white/10 focus-within:border-[#D4F23F] transition-colors">
+        <Icon className="w-4 h-4 text-white/40" />
         <input
             type="text"
             name={name}
             value={value}
             onChange={onChange}
-            className="bg-transparent border-none focus:outline-none text-sm w-full text-text"
+            className="bg-transparent border-none focus:outline-none text-xs font-mono w-full text-white"
             placeholder={placeholder}
         />
     </div>
@@ -265,10 +265,10 @@ const SocialInput = ({ icon: Icon, name, value, onChange, placeholder }) => (
 const SocialLink = ({ icon: Icon, label, href }) => {
     if (!href) return null;
     return (
-        <a href={href} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 rounded-lg hover:bg-surfaceHighlight transition-all group border border-transparent hover:border-primary/20">
-            <Icon className="w-5 h-5 text-text-muted group-hover:text-primary transition-colors" />
-            <span className="text-sm font-medium">{label}</span>
-            <LinkIcon className="w-3 h-3 text-text-muted ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+        <a href={href} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 bg-white/5 hover:bg-[#D4F23F] hover:text-black transition-all group border border-white/10">
+            <Icon className="w-4 h-4 text-white/50 group-hover:text-black transition-colors" />
+            <span className="text-xs font-mono uppercase">{label}</span>
+            <LinkIcon className="w-3 h-3 text-black ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
         </a>
     );
 };

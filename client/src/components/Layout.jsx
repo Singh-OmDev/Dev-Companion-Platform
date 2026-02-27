@@ -12,15 +12,15 @@ const SidebarItem = ({ to, icon: Icon, label }) => (
         to={to}
         className={({ isActive }) =>
             clsx(
-                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
+                "flex items-center gap-3 px-4 py-3 border-l-2 transition-all duration-200 group",
                 isActive
-                    ? "bg-primary/10 text-primary border border-primary/20"
-                    : "text-text-muted hover:text-text hover:bg-white/5"
+                    ? "border-[#D4F23F] bg-[#D4F23F]/5 text-[#D4F23F]"
+                    : "border-transparent text-white/50 hover:text-white hover:bg-white/5"
             )
         }
     >
-        <Icon className="w-5 h-5" />
-        <span className="font-medium text-sm tracking-wide">{label}</span>
+        <Icon className={clsx("w-5 h-5", ({ isActive }) => isActive ? "text-[#D4F23F]" : "text-white/50 group-hover:text-white")} />
+        <span className="font-mono text-sm tracking-wide uppercase">{label}</span>
     </NavLink>
 );
 
@@ -39,13 +39,13 @@ const Layout = ({ children }) => {
     }, [fetchDashboardData]);
 
     return (
-        <div className="flex h-screen bg-background text-text overflow-hidden font-sans transition-colors duration-300">
+        <div className="flex h-screen bg-[#020202] text-white overflow-hidden font-sans transition-colors duration-300">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-border p-6 flex flex-col gap-8 bg-surface/30 backdrop-blur-sm z-50 h-screen sticky top-0">
+            <aside className="w-64 border-r border-white/10 p-6 flex flex-col gap-8 bg-[#020202] z-50 h-screen sticky top-0">
                 <div className="flex items-center justify-between px-2">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent animate-pulse" />
-                        <span className="text-xl font-bold tracking-tight">DEV<span className="text-primary">OS</span></span>
+                    <div className="flex items-center gap-3 group cursor-pointer">
+                        <div className="w-6 h-6 bg-[#D4F23F] group-hover:scale-110 transition-transform" />
+                        <span className="text-xl font-black tracking-tighter uppercase">DEV<span className="text-[#D4F23F]">OS</span></span>
                     </div>
                     <button
                         onClick={toggleTheme}
@@ -56,33 +56,33 @@ const Layout = ({ children }) => {
                     </button>
                 </div>
 
-                <nav className="flex flex-col gap-2 flex-1 overflow-y-auto custom-scrollbar">
-                    <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2 px-2 mt-4">Core</div>
+                <nav className="flex flex-col gap-1 flex-1 overflow-y-auto custom-scrollbar">
+                    <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-2 px-4 mt-4">Core</div>
                     <SidebarItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
                     <SidebarItem to="/github" icon={Github} label="GitHub Stats" />
                     <SidebarItem to="/learning" icon={BookOpen} label="Learning" />
                     <SidebarItem to="/projects" icon={FolderKanban} label="Projects" />
                     <SidebarItem to="/features" icon={KanbanSquare} label="Feature Scoping" />
 
-                    <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2 px-2 mt-6">Power</div>
+                    <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-2 px-4 mt-6">Power</div>
                     <SidebarItem to="/leetcode" icon={Code2} label="LeetCode" />
                     <SidebarItem to="/goals" icon={Target} label="Daily Goals" />
                     <SidebarItem to="/standup" icon={Coffee} label="Daily Standup" />
                     <SidebarItem to="/insights" icon={Activity} label="Insights" />
 
-                    <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2 px-2 mt-4">Advanced Systems</div>
+                    <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-2 px-4 mt-4">Advanced Systems</div>
                     <SidebarItem to="/pr-assistant" icon={GitPullRequest} label="Smart PR" />
                     <SidebarItem to="/cartographer" icon={Compass} label="Architecture Map" />
                     <SidebarItem to="/ai-mentor" icon={Bot} label="Technical Mentor" />
                     <SidebarItem to="/interview" icon={Mic} label="Mock Interview" />
                 </nav>
 
-                <div className="p-4 rounded-xl bg-surface border border-border">
+                <div className="p-4 bg-[#0a0a0a] border border-white/10">
                     <div className="flex items-center gap-3">
-                        <UserButton afterSignOutUrl="/" />
+                        <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "rounded-none" } }} />
                         <div className="flex flex-col">
-                            <span className="text-sm font-bold">{user?.name || "User"}</span>
-                            <span className="text-xs text-text-muted">Pro Plan</span>
+                            <span className="text-sm font-bold font-mono tracking-tight uppercase">{user?.name || "User"}</span>
+                            <span className="text-[10px] text-[#D4F23F] font-mono uppercase">Pro Plan</span>
                         </div>
                         <div className="ml-auto">
                             <NotificationDropdown />

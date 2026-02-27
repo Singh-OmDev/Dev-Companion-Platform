@@ -4,16 +4,16 @@
 
 @layer base {
   :root {
-    /* Default (Cyber/Dark) Theme */
-    --color-background: #050505;
-    --color-surface: #0F0F0F;
-    --color-surface-highlight: #1A1A1A;
-    --color-border: #2A2A2A;
+    /* DevOS Brutalist Theme */
+    --color-background: #020202;
+    --color-surface: #0a0a0a;
+    --color-surface-highlight: #111111;
+    --color-border: rgba(255, 255, 255, 0.1);
     --color-primary: #D4F23F;
     --color-primary-highlight: #bada2f;
-    --color-secondary: #6E56CF;
-    --color-text: #E5E5E5;
-    --color-text-muted: #A3A3A3;
+    --color-secondary: #ffffff;
+    --color-text: #ffffff;
+    --color-text-muted: #888888;
   }
 
   .light {
@@ -32,8 +32,24 @@
   }
 
   body {
-    @apply bg-background text-text font-sans antialiased overflow-x-hidden transition-colors duration-300;
+    @apply bg-background text-text overflow-x-hidden transition-colors duration-300;
+    font-family: 'Space Grotesk', sans-serif;
   }
+}
+
+/* Base Typography Enforcement */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.05em;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace !important;
 }
 
 /* Custom Scrollbar */

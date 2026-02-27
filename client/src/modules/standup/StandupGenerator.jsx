@@ -86,18 +86,18 @@ const StandupGenerator = () => {
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 rounded-3xl">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4">
                 <div>
-                    <h1 className="text-4xl font-extrabold tracking-tight flex items-center gap-3">
-                        <FileText className="w-10 h-10 text-primary" />
+                    <h1 className="text-4xl font-black tracking-tighter uppercase flex items-center gap-3">
+                        <FileText className="w-10 h-10 text-[#D4F23F]" />
                         Daily Standup
                     </h1>
-                    <p className="text-text-muted mt-2 text-lg">Automate your morning status updates.</p>
+                    <p className="text-white/50 mt-2 text-xs font-mono uppercase">Automate your morning status updates.</p>
                 </div>
                 <Button
                     onClick={generateStandup}
                     disabled={isGenerating}
-                    className="shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-shadow text-black font-bold"
+                    variant="primary"
                 >
                     {isGenerating ? (
                         <><RefreshCw className="w-5 h-5 mr-2 animate-spin" /> Drafting...</>
@@ -110,25 +110,25 @@ const StandupGenerator = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Context Sidebar */}
                 <div className="space-y-6">
-                    <Card className="rounded-3xl border-border/40 shadow-xl bg-surface/50 backdrop-blur-sm p-6">
-                        <h3 className="font-bold mb-4 text-primary flex items-center gap-2">
+                    <Card className="p-6">
+                        <h3 className="font-bold mb-4 text-[#D4F23F] flex items-center gap-2 uppercase tracking-tight">
                             <AlertCircle className="w-4 h-4" /> Data Sources
                         </h3>
-                        <div className="space-y-4 text-sm text-text-muted">
+                        <div className="space-y-4 text-xs font-mono uppercase text-white/50">
                             <div className="flex justify-between items-center">
                                 <span>Recent Commits</span>
-                                <Badge variant={recentActivity.length > 0 ? "success" : "secondary"}>
+                                <Badge variant={recentActivity.length > 0 ? "success" : "default"}>
                                     {recentActivity.length > 0 ? "Synced" : "No recent"}
                                 </Badge>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span>Daily Goals</span>
-                                <Badge variant={goals.length > 0 ? "primary" : "secondary"}>
+                                <Badge variant={goals.length > 0 ? "primary" : "default"}>
                                     {goals.length} Active
                                 </Badge>
                             </div>
                         </div>
-                        <p className="mt-6 text-xs text-text-muted/70 leading-relaxed">
+                        <p className="mt-6 text-[10px] text-white/40 leading-relaxed font-mono uppercase">
                             The system looks at your recent GitHub activity and active Daily Goals to intelligently draft your standup text.
                         </p>
                     </Card>
@@ -136,29 +136,30 @@ const StandupGenerator = () => {
 
                 {/* Editor Area */}
                 <div className="md:col-span-2">
-                    <Card className="rounded-3xl border-border/40 shadow-xl bg-surface/50 backdrop-blur-sm p-2 overflow-hidden h-full flex flex-col min-h-[400px]">
-                        <div className="flex items-center justify-between p-4 border-b border-border/50 bg-surfaceHighlight/20 rounded-t-2xl">
-                            <Badge variant="secondary" className="bg-background">draft_standup.md</Badge>
+                    <Card className="p-0 overflow-hidden h-full flex flex-col min-h-[400px]">
+                        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#0a0a0a]">
+                            <Badge variant="default" className="bg-[#020202]">draft_standup.md</Badge>
                             {standupText && (
-                                <Button size="sm" variant="ghost" className="hover:text-primary transition-colors" onClick={handleCopy}>
-                                    {isCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                                    <span className="ml-2">{isCopied ? 'Copied!' : 'Copy to Clipboard'}</span>
+                                <Button size="sm" variant="ghost" className="hover:text-[#D4F23F] transition-colors" onClick={handleCopy}>
+                                    {isCopied ? <Check className="w-4 h-4 text-[#D4F23F]" /> : <Copy className="w-4 h-4" />}
+                                    <span className="ml-2 font-mono uppercase text-xs">{isCopied ? 'Copied!' : 'Copy to Clipboard'}</span>
                                 </Button>
                             )}
                         </div>
 
                         <div className="p-4 flex-1">
                             {!standupText ? (
-                                <div className="h-full flex flex-col items-center justify-center text-text-muted/50 space-y-4">
+                                <div className="h-full flex flex-col items-center justify-center text-white/30 space-y-4">
                                     <FileText className="w-16 h-16 opacity-20" />
-                                    <p>Click "Generate Draft" to create your standup.</p>
+                                    <p className="font-mono text-xs uppercase">Click "Generate Draft" to create your standup.</p>
                                 </div>
                             ) : (
                                 <textarea
-                                    className="w-full h-full min-h-[300px] bg-transparent resize-none outline-none text-text leading-relaxed font-mono text-sm custom-scrollbar p-2"
+                                    className="w-full h-full min-h-[300px] bg-transparent resize-none outline-none text-[#D4F23F] leading-relaxed font-mono text-sm custom-scrollbar p-2"
                                     value={standupText}
                                     onChange={(e) => setStandupText(e.target.value)}
                                     placeholder="Your standup draft..."
+                                    spellCheck={false}
                                 />
                             )}
                         </div>
