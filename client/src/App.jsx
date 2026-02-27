@@ -18,6 +18,7 @@ import FeaturePipeline from './modules/features/FeaturePipeline';
 import DeveloperInsights from './modules/insights/DeveloperInsights';
 import MockInterview from './modules/interview/MockInterview';
 import StandupGenerator from './modules/standup/StandupGenerator';
+import LandingPage from './pages/LandingPage';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -30,7 +31,19 @@ function App() {
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route
+            path="/"
+            element={
+              <>
+                <SignedIn>
+                  <Navigate to="/dashboard" replace />
+                </SignedIn>
+                <SignedOut>
+                  <LandingPage />
+                </SignedOut>
+              </>
+            }
+          />
           <Route
             path="*"
             element={
