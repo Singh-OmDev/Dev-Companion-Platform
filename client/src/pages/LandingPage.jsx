@@ -440,30 +440,44 @@ const LandingPage = () => {
                     <div className="w-full flex flex-col gap-0 border-b border-white/10 mb-32">
                         <FeatureBlock
                             number="01"
-                            title="GitHub Matrix"
-                            subtitle="Telemetry for Your Repositories"
-                            description="Visualize commit history and repo interactions with surgical precision. Keep the streak alive and maintain velocity without checking five different tabs."
+                            title="Global Telemetry"
+                            subtitle="Dashboard • GitHub Stats • Projects"
+                            description="Visualize commit history, repository data, and maintain your streak. Manage learning resources and active projects all from one centralized command center."
                             onHover={setIsHovering}
                         />
                         <FeatureBlock
                             number="02"
-                            title="DSA Intelligence"
-                            subtitle="Algorithmic Mastery"
-                            description="Sync your LeetCode progress. Track topics, analyze runtime complexity metrics, and prepare for technical screenings with cold, hard data."
+                            title="Code-Driven Tasking"
+                            subtitle="Feature Scoping • Kanban Boards"
+                            description="Your tasks move when your code moves. Sync GitHub commits directly to tickets using task IDs to automatically transition cards from To-Do to Done."
                             onHover={setIsHovering}
                         />
                         <FeatureBlock
                             number="03"
-                            title="Daily Tactics"
-                            subtitle="Unrelenting Execution"
-                            description="Define strict, non-negotiable daily objectives. Build momentum block by block within a distraction-free, high-contrast interface."
+                            title="Algorithmic Mastery"
+                            subtitle="LeetCode Integration"
+                            description="Sync your LeetCode progress directly into your workflow. Track topics, analyze runtime complexity metrics, and prepare for technical screenings with cold, hard data."
                             onHover={setIsHovering}
                         />
                         <FeatureBlock
                             number="04"
-                            title="AI Review"
-                            subtitle="Pre-merge Analysis"
-                            description="Catch security flaws and anti-patterns before they hit production using context-aware static analysis tied directly to your workflow."
+                            title="Unrelenting Execution"
+                            subtitle="Daily Goals • Standups • Insights"
+                            description="Define strict, non-negotiable daily objectives. The system analyzes your commits and goal completion to instantly draft your daily standup reports."
+                            onHover={setIsHovering}
+                        />
+                        <FeatureBlock
+                            number="05"
+                            title="Automated Engineering"
+                            subtitle="Smart PRs • Architecture Maps"
+                            description="AI-generated Pull Request descriptions from pure branch diffs. Automatically map out complex repository folder structures into interactive visual node graphs."
+                            onHover={setIsHovering}
+                        />
+                        <FeatureBlock
+                            number="06"
+                            title="Artificial Mentorship"
+                            subtitle="Technical Mentor • Mock Interviews"
+                            description="Engage with a context-aware AI specifically tuned to your codebase. Run rigorous, simulated technical voice interviews to stay incredibly sharp."
                             onHover={setIsHovering}
                         />
                     </div>
