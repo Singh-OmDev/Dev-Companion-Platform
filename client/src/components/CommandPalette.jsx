@@ -44,8 +44,6 @@ const CommandPalette = () => {
         { id: 'pr-assistant', label: 'Smart PR Assistant', icon: GitPullRequest, type: 'route', path: '/pr-assistant' },
         { id: 'cartographer', label: 'Architecture Map', icon: Compass, type: 'route', path: '/cartographer' },
         { id: 'ai-mentor', label: 'Technical Mentor', icon: Bot, type: 'route', path: '/ai-mentor' },
-        { id: 'interview', label: 'Mock Interview', icon: Mic, type: 'route', path: '/interview' },
-        { id: 'theme', label: `Toggle Theme (${theme === 'cyber' ? 'Light' : 'Cyber'})`, icon: theme === 'cyber' ? Sun : Moon, type: 'action', action: toggleTheme },
         { id: 'logout', label: 'Sign Out', icon: undefined, type: 'action', action: () => signOut() }
     ];
 

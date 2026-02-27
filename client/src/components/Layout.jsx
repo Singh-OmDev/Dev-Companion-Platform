@@ -47,13 +47,6 @@ const Layout = ({ children }) => {
                         <div className="w-6 h-6 bg-[#D4F23F] group-hover:scale-110 transition-transform" />
                         <span className="text-xl font-black tracking-tighter uppercase">DEV<span className="text-[#D4F23F]">OS</span></span>
                     </div>
-                    <button
-                        onClick={toggleTheme}
-                        className="p-2 rounded-full hover:bg-surfaceHighlight text-text-muted hover:text-primary transition-colors"
-                        title={theme === 'cyber' ? "Switch to Light Mode" : "Switch to Cyber Mode"}
-                    >
-                        {theme === 'cyber' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                    </button>
                 </div>
 
                 <nav className="flex flex-col gap-1 flex-1 overflow-y-auto custom-scrollbar">

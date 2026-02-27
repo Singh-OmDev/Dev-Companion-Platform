@@ -5,12 +5,40 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { User, MapPin, Link as LinkIcon, Github, Linkedin, Twitter, Globe, Edit2, Save, X, Briefcase, Code, Terminal, RefreshCw } from 'lucide-react';
 import api from '../../services/api';
+import { useUser } from '@clerk/clerk-react';
 
 const Profile = () => {
     const { user, fetchDashboardData } = useDashboardStore();
+    const { user: clerkUser } = useUser();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [syncing, setSyncing] = useState(false);
+
+    const isGithubConnected = clerkUser?.externalAccounts?.some(acc => acc.provider === 'oauth_github');
+
+    const connectGithub = async () => {
+        try {
+            console.log("Attempting to connect GitHub for Clerk user:", clerkUser.id);
+            const res = await clerkUser?.createExternalAccount({
+                strategy: 'oauth_github',
+                redirectUrl: window.location.href,
+            });
+            console.log("Create External Account Response:", res);
+            if (res && res.verification && res.verification.status !== 'verified') {
+                const redirectUrl = res.verification.externalVerificationRedirectURL?.href;
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else {
+                    alert("No redirect URL found in verification object.");
+                }
+            } else if (res?.verification?.status === 'verified') {
+                alert("Account is already verified and connected!");
+            }
+        } catch (error) {
+            console.error("Failed to connect GitHub", error);
+            alert(`Failed to connect GitHub: ${error.message || JSON.stringify(error)}`);
+        }
+    };
 
     const handleSync = useCallback(async () => {
         // user check inside callback to avoid dependency on specific user properties if possible, 
@@ -172,7 +200,21 @@ const Profile = () => {
                         </h3>
                         {isEditing ? (
                             <div className="space-y-3">
-                                <SocialInput icon={Github} name="github" value={formData.github} onChange={handleChange} placeholder="GitHub URL" />
+                                {isGithubConnected ? (
+                                    <div className="flex items-center gap-2 bg-white/5 p-2 border border-[#D4F23F] text-[#D4F23F]">
+                                        <Github className="w-4 h-4" />
+                                        <span className="text-xs font-mono uppercase font-bold">GitHub Connected</span>
+                                    </div>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={connectGithub}
+                                        className="w-full flex items-center justify-center gap-2 bg-[#D4F23F] text-black p-2 border border-[#D4F23F] hover:bg-black hover:text-[#D4F23F] transition-colors"
+                                    >
+                                        <Github className="w-4 h-4" />
+                                        <span className="text-xs font-mono uppercase font-black tracking-wider">Connect GitHub</span>
+                                    </button>
+                                )}
                                 <SocialInput icon={Linkedin} name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="LinkedIn URL" />
                                 <SocialInput icon={Twitter} name="twitter" value={formData.twitter} onChange={handleChange} placeholder="Twitter URL" />
                                 <SocialInput icon={Globe} name="website" value={formData.website} onChange={handleChange} placeholder="Portfolio URL" />

@@ -1,3 +1,7 @@
 node_modules/
 .env
 .DS_Store
+
+
+GITHUB_CLIENT_ID=Ov23liNvT0VnQZ4w66oN
+GITHUB_CLIENT_SECRET=c38ae18d0c28d83ef161bba9af025c97d0a94f34

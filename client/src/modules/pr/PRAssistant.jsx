@@ -3,8 +3,13 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { GitPullRequest, GitBranch, Github, Copy, Check, Sparkles, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
+import Badge from '../../components/ui/Badge';
+import { useUser } from '@clerk/clerk-react';
 
 const PRAssistant = () => {
+    const { user: clerkUser } = useUser();
+    const isGithubConnected = clerkUser?.externalAccounts?.some(acc => acc.provider === 'oauth_github');
+
     const [repos, setRepos] = useState([]);
     const [branches, setBranches] = useState([]);
 
@@ -144,6 +149,15 @@ const PRAssistant = () => {
                         <div className="flex items-center gap-2 mb-6 border-b border-border pb-4">
                             <Github className="w-5 h-5 text-primary" />
                             <h2 className="text-lg font-bold">Configuration</h2>
+                            {isGithubConnected ? (
+                                <Badge className="ml-auto bg-[#D4F23F]/10 text-[#D4F23F] border-[#D4F23F]/30 uppercase text-[10px] font-black tracking-wider shadow-[0_0_10px_rgba(212,242,63,0.2)]">
+                                    Private Repos Unlocked
+                                </Badge>
+                            ) : (
+                                <Badge className="ml-auto bg-white/5 text-white/50 border-white/10 uppercase text-[10px] font-bold tracking-wider">
+                                    Public Repos Only
+                                </Badge>
+                            )}
                         </div>
 
                         <div className="space-y-5 flex-1">

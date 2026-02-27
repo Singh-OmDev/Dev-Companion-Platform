@@ -5,6 +5,7 @@ const multer = require('multer');
 const pdfParse = require('pdf-parse');
 const axios = require('axios');
 const auth = require('../middleware/auth');
+const { getGithubToken } = require('../utils/githubToken');
 
 // Initialize Groq
 const groq = new Groq({
@@ -391,21 +392,23 @@ router.post('/generate-docs', auth, async (req, res) => {
             return res.status(400).json({ msg: "Missing required parameters (owner, repo)" });
         }
 
-        const getGithubHeaders = () => {
+        const getGithubHeaders = async (clerkUserId) => {
             const headers = {
                 'Accept': 'application/vnd.github.v3+json',
                 'User-Agent': 'Dev-Companion-App'
             };
-            if (process.env.GITHUB_TOKEN) {
-                headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+            const token = await getGithubToken(clerkUserId);
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
             }
             return headers;
         };
 
         // 1. Fetch the recursive tree from GitHub to understand the structure of the specific path
         const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`;
+        const headers = await getGithubHeaders(req.auth.userId);
         const response = await axios.get(treeUrl, {
-            headers: getGithubHeaders()
+            headers
         });
 
         const tree = response.data.tree;

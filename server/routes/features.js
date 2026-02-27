@@ -5,6 +5,7 @@ const Feature = require('../models/Feature');
 const User = require('../models/User');
 const Groq = require('groq-sdk');
 const axios = require('axios');
+const { getGithubToken } = require('../utils/githubToken');
 
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY || 'mock_key'
@@ -174,8 +175,9 @@ router.post('/:id/sync', auth, async (req, res) => {
         username = username.trim();
 
         const options = { headers: { 'User-Agent': 'Dev-Companion-App' } };
-        if (process.env.GITHUB_TOKEN) {
-            options.headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+        const token = await getGithubToken(req.auth.userId);
+        if (token) {
+            options.headers['Authorization'] = `Bearer ${token}`;
         } else if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
             options.params = {
                 client_id: process.env.GITHUB_CLIENT_ID,

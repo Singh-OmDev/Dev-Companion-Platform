@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 const Groq = require('groq-sdk');
 const auth = require('../middleware/auth');
+const { getGithubToken } = require('../utils/githubToken');
 
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY || 'mock_key'
@@ -27,13 +28,14 @@ const generateContent = async (prompt, responseFormat = null) => {
     return chatCompletion.choices[0]?.message?.content || "";
 };
 
-const getGithubHeaders = () => {
+const getGithubHeaders = async (clerkUserId) => {
     const headers = {
         'Accept': 'application/vnd.github.v3+json',
         'User-Agent': 'Dev-Companion-App'
     };
-    if (process.env.GITHUB_TOKEN) {
-        headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+    const token = await getGithubToken(clerkUserId);
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
     }
     return headers;
 };
@@ -42,9 +44,17 @@ const getGithubHeaders = () => {
 // @desc    Get top repos for user to select from
 router.get('/repos', auth, async (req, res) => {
     try {
-        const username = 'Singh-OmDev'; // Hardcoded for this demo context, or extract from user profile
+        let username = req.user?.socials?.github || 'Singh-OmDev';
+        if (username.includes('github.com')) {
+            const parts = username.split('/').filter(Boolean);
+            username = parts[parts.length - 1];
+        }
+        username = username.trim();
+
+        const headers = await getGithubHeaders(req.auth.userId);
+
         const response = await axios.get(`https://api.github.com/users/${username}/repos?sort=updated&per_page=50`, {
-            headers: getGithubHeaders()
+            headers
         });
 
         const repos = response.data.map(repo => ({
@@ -66,8 +76,9 @@ router.get('/repos', auth, async (req, res) => {
 router.get('/branches/:owner/:repo', auth, async (req, res) => {
     try {
         const { owner, repo } = req.params;
+        const headers = await getGithubHeaders(req.auth.userId);
         const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/branches?per_page=100`, {
-            headers: getGithubHeaders()
+            headers
         });
 
         const branches = response.data.map(branch => branch.name);
@@ -90,8 +101,9 @@ router.post('/generate', auth, async (req, res) => {
 
         // Fetch the diff from GitHub
         const diffUrl = `https://api.github.com/repos/${owner}/${repo}/compare/${base}...${head}`;
+        const headers = await getGithubHeaders(req.auth.userId);
         const response = await axios.get(diffUrl, {
-            headers: getGithubHeaders()
+            headers
         });
 
         const files = response.data.files;

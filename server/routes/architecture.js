@@ -2,14 +2,16 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const auth = require('../middleware/auth');
+const { getGithubToken } = require('../utils/githubToken');
 
-const getGithubHeaders = () => {
+const getGithubHeaders = async (clerkUserId) => {
     const headers = {
         'Accept': 'application/vnd.github.v3+json',
         'User-Agent': 'Dev-Companion-App'
     };
-    if (process.env.GITHUB_TOKEN) {
-        headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+    const token = await getGithubToken(clerkUserId);
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
     }
     return headers;
 };
@@ -18,9 +20,17 @@ const getGithubHeaders = () => {
 // @desc    Get top repos for user to select from
 router.get('/repos', auth, async (req, res) => {
     try {
-        const username = 'Singh-OmDev'; // Replace with real auth user later
+        let username = req.user?.socials?.github || 'Singh-OmDev';
+        if (username.includes('github.com')) {
+            const parts = username.split('/').filter(Boolean);
+            username = parts[parts.length - 1];
+        }
+        username = username.trim();
+
+        const headers = await getGithubHeaders(req.auth.userId);
+
         const response = await axios.get(`https://api.github.com/users/${username}/repos?sort=updated&per_page=50`, {
-            headers: getGithubHeaders()
+            headers
         });
 
         const repos = response.data.map(repo => ({
@@ -50,8 +60,9 @@ router.post('/analyze', auth, async (req, res) => {
 
         // 1. Fetch the recursive tree from GitHub
         const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`;
+        const headers = await getGithubHeaders(req.auth.userId);
         const response = await axios.get(treeUrl, {
-            headers: getGithubHeaders()
+            headers
         });
 
         const tree = response.data.tree;

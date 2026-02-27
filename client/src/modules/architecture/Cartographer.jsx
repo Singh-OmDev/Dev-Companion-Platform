@@ -3,6 +3,8 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { GitBranch, Github, Sparkles, AlertCircle, RefreshCw, FileText, X, Copy, CheckCircle2 } from 'lucide-react';
 import api from '../../services/api';
+import Badge from '../../components/ui/Badge';
+import { useUser } from '@clerk/clerk-react';
 import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, MarkerType, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
@@ -70,6 +72,9 @@ const ArchitectureNode = ({ data, targetPosition = Position.Top, sourcePosition 
 const nodeTypes = { architecture: ArchitectureNode };
 
 const Cartographer = () => {
+    const { user: clerkUser } = useUser();
+    const isGithubConnected = clerkUser?.externalAccounts?.some(acc => acc.provider === 'oauth_github');
+
     const [repos, setRepos] = useState([]);
     const [selectedRepo, setSelectedRepo] = useState('');
     const [isLoadingRepos, setIsLoadingRepos] = useState(true);
@@ -264,9 +269,20 @@ const Cartographer = () => {
 
             <Card className="p-4 flex flex-col sm:flex-row items-end gap-4 shrink-0 border-border/50 bg-surfaceHighlight/50 backdrop-blur-sm">
                 <div className="flex-1 w-full">
-                    <label className="block text-sm font-medium text-textSecondary mb-2 flex items-center gap-2">
-                        <Github className="w-4 h-4" /> Select Repository to Map
-                    </label>
+                    <div className="text-sm font-medium text-textSecondary mb-2 flex items-center justify-between">
+                        <label className="flex items-center gap-2">
+                            <Github className="w-4 h-4" /> Select Repository to Map
+                        </label>
+                        {isGithubConnected ? (
+                            <Badge className="bg-[#D4F23F]/10 text-[#D4F23F] border-[#D4F23F]/30 uppercase text-[10px] font-black tracking-wider shadow-[0_0_10px_rgba(212,242,63,0.2)]">
+                                Private Repos Unlocked
+                            </Badge>
+                        ) : (
+                            <Badge className="bg-white/5 text-white/50 border-white/10 uppercase text-[10px] font-bold tracking-wider">
+                                Public Repos Only
+                            </Badge>
+                        )}
+                    </div>
                     <select
                         className="w-full p-3 rounded-xl bg-background border border-border text-text focus:outline-none focus:border-primary disabled:opacity-50 transition-colors"
                         value={selectedRepo}
