@@ -318,31 +318,33 @@ const Cartographer = () => {
                 </Button>
             </Card>
 
-            <Card className="flex-1 !p-0 overflow-hidden relative border-border/50 shadow-2xl bg-background min-h-[500px]">
+            <Card className="flex-1 !p-0 overflow-hidden relative border-border/50 shadow-2xl bg-background min-h-[600px]">
                 {nodes.length > 0 ? (
-                    <ReactFlow
-                        nodes={nodes}
-                        edges={edges}
-                        nodeTypes={nodeTypes}
-                        onNodesChange={onNodesChange}
-                        onEdgesChange={onEdgesChange}
-                        onNodeClick={handleNodeClick}
-                        fitView
-                        fitViewOptions={{ padding: 0.2, minZoom: 0.5, maxZoom: 1.5 }}
-                        className="bg-transparent"
-                        minZoom={0.05}
-                        panOnScroll={true}
-                        zoomOnScroll={false}
-                        panOnDrag={true}
-                        selectionOnDrag={false}
-                    >
-                        <Background color="#334155" gap={32} size={2} className="opacity-20" />
-                        <Controls
-                            showInteractive={false}
+                    <div className="w-full h-full min-h-[600px]">
+                        <ReactFlow
+                            nodes={nodes}
+                            edges={edges}
+                            nodeTypes={nodeTypes}
+                            onNodesChange={onNodesChange}
+                            onEdgesChange={onEdgesChange}
+                            onNodeClick={handleNodeClick}
+                            fitView
                             fitViewOptions={{ padding: 0.2, minZoom: 0.5, maxZoom: 1.5 }}
-                            className="!bg-slate-900 border-none !shadow-2xl overflow-hidden rounded-md [&>button]:!bg-slate-800 [&>button]:!border-b [&>button]:!border-slate-700/50 hover:[&>button]:!bg-slate-700 [&>button>svg]:!fill-slate-300 [&>button>svg]:!max-w-[16px] [&>button>svg]:!max-h-[16px] transition-colors"
-                        />
-                    </ReactFlow>
+                            className="bg-transparent"
+                            minZoom={0.05}
+                            panOnScroll={true}
+                            zoomOnScroll={false}
+                            panOnDrag={true}
+                            selectionOnDrag={false}
+                        >
+                            <Background color="#334155" gap={32} size={2} className="opacity-20" />
+                            <Controls
+                                showInteractive={false}
+                                fitViewOptions={{ padding: 0.2, minZoom: 0.5, maxZoom: 1.5 }}
+                                className="!bg-slate-900 border-none !shadow-2xl overflow-hidden rounded-md [&>button]:!bg-slate-800 [&>button]:!border-b [&>button]:!border-slate-700/50 hover:[&>button]:!bg-slate-700 [&>button>svg]:!fill-slate-300 [&>button>svg]:!max-w-[16px] [&>button>svg]:!max-h-[16px] transition-colors"
+                            />
+                        </ReactFlow>
+                    </div>
                 ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted/40 p-8 text-center bg-gradient-to-b from-transparent to-surfaceHighlight/20">
                         <GitBranch className="w-24 h-24 mb-6 opacity-20" />

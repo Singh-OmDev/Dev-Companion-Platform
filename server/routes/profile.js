@@ -42,9 +42,10 @@ router.put('/', auth, async (req, res) => {
         await user.save();
         res.json(user);
     } catch (err) {
-        console.error(err.message);
+        console.error("Profile Save Error:", err.message);
         if (err.name === 'ValidationError') {
-            return res.status(400).json({ msg: err.message });
+            console.error("Validation Errors:", err.errors);
+            return res.status(400).json({ msg: err.message, err: err.errors });
         }
         res.status(500).send('Server Error');
     }
