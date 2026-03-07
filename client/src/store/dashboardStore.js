@@ -18,6 +18,10 @@ const useDashboardStore = create((set) => ({
     },
     projects: [],
     activity: [],
+    languages: [],
+    leetcodeRecommendations: [],
+    dailyMission: null,
+    isGeneratingMission: false,
     isLoading: true, // Start in loading state
     error: null,
 
@@ -43,6 +47,8 @@ const useDashboardStore = create((set) => ({
             // Optional: Fetch github activity if user has linked it
             let fetchedActivity = [];
             let fetchedStats = {};
+            let fetchedLanguages = [];
+            let fetchedGithubRepos = [];
 
             if (profile.socials?.github) {
                 try {
@@ -85,6 +91,17 @@ const useDashboardStore = create((set) => ({
                             count: activityMap[date]
                         }));
                     }
+
+                    // Fetch full github stats to get active repos and top languages
+                    try {
+                        const fullStatsRes = await api.get(`/github/stats/${profile.socials.github}`);
+                        if (fullStatsRes.data) {
+                            fetchedLanguages = fullStatsRes.data.languages || [];
+                            fetchedGithubRepos = fullStatsRes.data.repos || [];
+                        }
+                    } catch (statErr) {
+                        console.log("Failed to fetch full github stats", statErr);
+                    }
                 } catch (err) {
                     console.log("Failed to fetch github data for dashboard", err);
                 }
@@ -123,7 +140,8 @@ const useDashboardStore = create((set) => ({
                     completed: g.isCompleted,
                     type: g.type
                 })),
-                projects: fetchedProjects || [],
+                projects: fetchedProjects.length > 0 ? fetchedProjects : (fetchedGithubRepos.slice(0, 3) || []),
+                languages: fetchedLanguages || [],
                 activity: fetchedActivity.length > 0 ? fetchedActivity : [], // Use empty array if no real activity
                 isLoading: false
             }));
@@ -131,6 +149,31 @@ const useDashboardStore = create((set) => ({
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
             set({ isLoading: false, error: error.message });
+        }
+    },
+
+    fetchLeetCodeRecommendations: async (username) => {
+        try {
+            const response = await api.get(`/leetcode/${username}/recommendations`);
+            set({ leetcodeRecommendations: response.data || [] });
+        } catch (error) {
+            console.error('Failed to fetch LeetCode recommendations:', error);
+            set({ leetcodeRecommendations: [] });
+        }
+    },
+
+    generateDailyMission: async () => {
+        set({ isGeneratingMission: true });
+        try {
+            const response = await api.get('/ai/suggestions');
+            // Extract the first suggestion text
+            const text = Array.isArray(response.data) && response.data.length > 0
+                ? response.data[0].suggestion
+                : (response.data?.suggestion || 'Review your recent PRs and tackle a LeetCode problem.');
+            set({ dailyMission: text, isGeneratingMission: false });
+        } catch (error) {
+            console.error('Failed to generate daily mission:', error);
+            set({ dailyMission: 'Could not communicate with the AI router.', isGeneratingMission: false });
         }
     },
 
