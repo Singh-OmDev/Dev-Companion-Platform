@@ -5,34 +5,28 @@ const useDashboardStore = create((set) => ({
     user: {
         name: 'Developer',
         role: 'Pro User',
-        streak: 12,
-        xp: 4500,
-        level: 5,
+        streak: 0,
+        xp: 0,
+        level: 1,
     },
-    goals: [
-        { id: 1, title: 'Solve 2 DSA Mediums', completed: false, type: 'leetcode' },
-        { id: 2, title: 'Commit to side-project', completed: true, type: 'github' }
-    ],
+    goals: [],
     stats: {
-        totalCommits: 843,
-        leetcodeSolved: 142,
-        projectsCompleted: 7,
-        hoursCoded: 120
+        totalCommits: 0,
+        leetcodeSolved: 0,
+        projectsCompleted: 0,
+        hoursCoded: 0
     },
     projects: [],
-    activity: [
-        { date: '2026-01-20', count: 5 },
-        { date: '2026-01-21', count: 8 },
-        { date: '2026-01-22', count: 2 },
-        { date: '2026-01-23', count: 12 },
-        { date: '2026-01-24', count: 7 },
-    ],
+    activity: [],
+    isLoading: true, // Start in loading state
+    error: null,
 
     toggleGoal: (id) => set((state) => ({
         goals: state.goals.map(g => g.id === id ? { ...g, completed: !g.completed } : g)
     })),
 
     fetchDashboardData: async () => {
+        set({ isLoading: true, error: null });
         try {
             // Fetch profile data (contains stats), today's goals, and active projects
             const [profileRes, goalsRes, projectsRes] = await Promise.all([
@@ -55,7 +49,7 @@ const useDashboardStore = create((set) => ({
                     // Try to sync/fetch latest stats from our backend
                     const statsRes = await api.post('/github/sync');
                     if (statsRes.data) {
-                        fetchedStats = statsRes.data;
+                        fetchedStats = { ...fetchedStats, ...statsRes.data };
                     }
 
                     // Fetch real activity events for the graph
@@ -96,6 +90,20 @@ const useDashboardStore = create((set) => ({
                 }
             }
 
+            if (profile.socials?.leetcode) {
+                try {
+                    const leetcodeRes = await api.post('/leetcode/sync');
+                    if (leetcodeRes.data) {
+                        fetchedStats = {
+                            ...fetchedStats,
+                            leetcodeSolved: leetcodeRes.data
+                        };
+                    }
+                } catch (err) {
+                    console.log("Failed to sync leetcode data", err);
+                }
+            }
+
             set((state) => ({
                 user: {
                     ...state.user,
@@ -105,7 +113,7 @@ const useDashboardStore = create((set) => ({
                 },
                 stats: {
                     totalCommits: fetchedStats.totalCommits || profile.stats?.totalCommits || 0,
-                    leetcodeSolved: profile.stats?.leetcodeSolved?.total || 0,
+                    leetcodeSolved: fetchedStats.leetcodeSolved?.total || profile.stats?.leetcodeSolved?.total || 0,
                     projectsCompleted: fetchedProjects.length || 0,
                     hoursCoded: 0 // Mocked for now
                 },
@@ -116,11 +124,13 @@ const useDashboardStore = create((set) => ({
                     type: g.type
                 })),
                 projects: fetchedProjects || [],
-                activity: fetchedActivity.length > 0 ? fetchedActivity : state.activity // keep mock if failed
+                activity: fetchedActivity.length > 0 ? fetchedActivity : [], // Use empty array if no real activity
+                isLoading: false
             }));
 
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
+            set({ isLoading: false, error: error.message });
         }
     },
 

@@ -208,29 +208,24 @@ router.post('/sync', auth, async (req, res) => {
             username = username.trim();
         }
 
-        const [reposRes, eventsRes] = await Promise.all([
+        const [reposRes, eventsRes, searchRes] = await Promise.all([
             axios.get(`https://api.github.com/users/${username}/repos?per_page=100`, options),
-            axios.get(`https://api.github.com/users/${username}/events?per_page=100`, options)
+            axios.get(`https://api.github.com/users/${username}/events?per_page=100`, options),
+            axios.get(`https://api.github.com/search/commits?q=author:${username}`, options).catch(() => ({ data: { total_count: 0 } }))
         ]);
 
         const repos = reposRes.data;
         const events = eventsRes.data;
+        const totalCommits = searchRes.data.total_count || 0;
 
         // Calculate Stats
         const totalRepos = repos.length;
-        let totalCommits = 0;
-
         // Simple streak calculation (consecutive days with activity in last 14 days)
         // Note: Real streak calc requires more history, this is an approximation from recent events
         const activityMap = {};
         events.forEach(event => {
             const dateStr = event.created_at.split('T')[0];
             activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
-            if (event.type === 'PushEvent') {
-                totalCommits += (event.payload.size || 1);
-            } else {
-                totalCommits++; // Count other actions as 1 for general activity or keep strictly commits
-            }
         });
 
         // Determine current streak
@@ -259,7 +254,7 @@ router.post('/sync', auth, async (req, res) => {
             {
                 $set: {
                     'stats.totalRepos': totalRepos,
-                    'stats.totalCommits': (user.stats?.totalCommits || 0) + totalCommits,
+                    'stats.totalCommits': totalCommits > 0 ? totalCommits : (user.stats?.totalCommits || 0), // fallback if search API fails
                     'stats.currentStreak': currentStreak
                 }
             },

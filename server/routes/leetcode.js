@@ -2,6 +2,52 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
+const User = require('../models/User');
+const auth = require('../middleware/auth');
+
+// @route   POST /api/leetcode/sync
+// @desc    Sync user leetcode stats to database
+router.post('/sync', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        const username = user.socials?.leetcode;
+        if (!username) {
+            return res.status(400).json({ msg: 'LeetCode account not linked' });
+        }
+
+        const response = await axios.get(`https://leetcode-api-faisalshohag.vercel.app/${username}`);
+
+        if (response.data && response.data.totalSolved !== undefined) {
+            const data = response.data;
+
+            const updatedUser = await User.findByIdAndUpdate(
+                req.user.id,
+                {
+                    $set: {
+                        'stats.leetcodeSolved.easy': data.easySolved,
+                        'stats.leetcodeSolved.medium': data.mediumSolved,
+                        'stats.leetcodeSolved.hard': data.hardSolved,
+                        'stats.leetcodeSolved.total': data.totalSolved,
+                    }
+                },
+                { new: true }
+            );
+
+            return res.json(updatedUser.stats.leetcodeSolved);
+        } else {
+            return res.status(404).json({ msg: 'Invalid LeetCode username or API unavailable' });
+        }
+
+    } catch (err) {
+        console.error('LeetCode Sync Error:', err.message);
+        res.status(500).send('Server Error: ' + err.message);
+    }
+});
+
 // @desc    Get user leetcode stats
 router.get('/:username', async (req, res) => {
     try {

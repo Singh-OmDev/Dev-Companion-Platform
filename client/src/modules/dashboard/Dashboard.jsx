@@ -21,12 +21,21 @@ const StatCard = ({ label, value, icon: Icon, trend }) => (
 );
 
 const Dashboard = () => {
-    const { user, stats, goals, activity, projects, fetchDashboardData } = useDashboardStore();
+    const { user, stats, goals, activity, projects, fetchDashboardData, isLoading } = useDashboardStore();
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchDashboardData();
     }, [fetchDashboardData]);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-white/50 space-y-4 animate-pulse">
+                <div className="w-12 h-12 border-4 border-[#D4F23F]/30 border-t-[#D4F23F] rounded-full animate-spin" />
+                <p className="font-mono text-sm uppercase tracking-widest">Loading Dashboard Data...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -70,7 +79,7 @@ const Dashboard = () => {
                                 {[...Array(4)].map((_, i) => <div key={i} className="w-full border-t border-white" />)}
                             </div>
 
-                            {activity.map((day, i) => (
+                            {activity.length > 0 ? activity.map((day, i) => (
                                 <div
                                     key={i}
                                     className="w-full bg-[#D4F23F]/20 hover:bg-[#D4F23F] transition-colors relative group cursor-crosshair z-10"
@@ -80,7 +89,11 @@ const Dashboard = () => {
                                         {day.count} commits
                                     </div>
                                 </div>
-                            ))}
+                            )) : (
+                                <div className="absolute inset-0 flex items-center justify-center text-white/30 font-mono text-xs uppercase z-20">
+                                    No activity data found. Connect GitHub to track commits.
+                                </div>
+                            )}
                         </div>
                     </Card>
 
