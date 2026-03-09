@@ -1,5 +1,8 @@
 # 🚀 Dev Companion Platform (DevOS)
 
+<img width="1911" height="868" alt="image" src="https://github.com/user-attachments/assets/7be4664c-42f9-40da-8e36-b55351408a25" />
+
+
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
