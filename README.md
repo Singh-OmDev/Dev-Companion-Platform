@@ -18,7 +18,7 @@ Dev Companion Platform (also known as DevOS) is a modern, AI-powered central com
 - **🛡️ Secure Authentication:** Seamless user login and secure session management powered by Clerk and GitHub OAuth.
 - **📚 LeetCode Tracking:** Get tailored LeetCode problem recommendations directly inside your dashboard.
 - **🗺️ Interactive Flow Architecture:** Visual node-based repository tracking and visualization tools built with React Flow.
-- **🎨 Modern UI/UX:** Responsive, dark-mode native interface styled gracefully with Tailwind CSS and Framer Motion animations.
+- **🎨 Modern UI/UX:** Responsive, dark-mode native interface styled gracefully with Tailwind CSS and Framer Motion animations
 
 ## 🛠️ Tech Stack
 
